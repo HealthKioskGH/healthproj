@@ -3,6 +3,7 @@
 from django.db import migrations, models
 import django.contrib.auth.models
 import django.utils.timezone
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -35,14 +36,16 @@ class Migration(migrations.Migration):
                 ('specialization', models.CharField(blank=True, max_length=100)),
                 ('license_number', models.CharField(blank=True, max_length=50)),
                 ('years_of_experience', models.IntegerField(blank=True, null=True)),
-                ('profile_picture', models.ImageField(blank=True, null=True, upload_to='profile_pics/')),
-                ('emergency_contact', models.CharField(blank=True, max_length=100)),
+                ('qualifications', models.TextField(blank=True)),
                 ('hospital_affiliations', models.TextField(blank=True)),
                 ('languages', models.CharField(blank=True, max_length=200)),
-                ('working_hours', models.TextField(blank=True)),
-                ('qualifications', models.TextField(blank=True)),
+                ('working_hours', models.CharField(blank=True, max_length=100)),
+                ('emergency_contact', models.CharField(blank=True, max_length=200)),
+                ('office_address', models.TextField(blank=True)),
+                ('profile_picture', models.ImageField(blank=True, null=True, upload_to='profile_pics/')),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
+                ('assigned_doctor', models.ForeignKey('self', blank=True, limit_choices_to={'user_type': 'doctor'}, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='assigned_patients')),
             ],
             options={
                 'db_table': 'auth_user',
@@ -52,4 +55,3 @@ class Migration(migrations.Migration):
             ],
         ),
     ]
-#change
