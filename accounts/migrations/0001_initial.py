@@ -43,6 +43,7 @@ class Migration(migrations.Migration):
                 ('emergency_contact', models.CharField(blank=True, max_length=200, default='')),
                 ('office_address', models.TextField(blank=True, default='')),
                 ('profile_picture', models.ImageField(blank=True, null=True, upload_to='profile_pics/')),
+                ('assigned_doctor', models.ForeignKey('self', blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='assigned_patients', limit_choices_to={'user_type': 'doctor'})),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
             ],
@@ -52,10 +53,5 @@ class Migration(migrations.Migration):
             managers=[
                 ('objects', django.contrib.auth.models.UserManager()),
             ],
-        ),
-        migrations.AddField(
-            model_name='User',
-            name='assigned_doctor',
-            field=models.ForeignKey('self', blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='assigned_patients', limit_choices_to={'user_type': 'doctor'}),
         ),
     ]
