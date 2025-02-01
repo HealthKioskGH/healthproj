@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block body_class %}patient-portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Patient portal specific variables */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #0061f2 0%, #6900f2 100%) !important;
+        --primary-color: #0061f2 !important;
+        --secondary-color: #6900f2 !important;
+        --primary-light: rgba(0, 97, 242, 0.1) !important;
+        --secondary-light: rgba(105, 0, 242, 0.1) !important;
+    }
+
+    /* Patient portal navbar */
+    body.patient-portal nav.navbar {
+        background: var(--primary-gradient) !important;
+        background-image: var(--primary-gradient) !important;
+    }
+
+    /* Override navigation and header elements */
+    .navbar,
+    .btn-primary,
+    .page-header,
+    .card-header,
+    nav,
+    .nav-item .active,
+    .nav-tabs .nav-link.active,
+    .bg-primary {
+        background: var(--primary-gradient) !important;
+        border: none !important;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0052cc 0%, #5900cc 100%) !important;
+        border: none;
+    }
+
+    .text-primary {
+        color: var(--primary-color) !important;
+    }
+
+    .nav-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+        color: white !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .badge.bg-primary {
+        background: var(--primary-gradient) !important;
+    }
+
+    .btn-outline-primary {
+        color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+    }
+
+    .btn-outline-primary:hover {
+        color: white !important;
+        background: var(--primary-gradient) !important;
+    }
+</style>
+{% block page_specific_css %}{% endblock %}
+{% endblock %} 

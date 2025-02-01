@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Register{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00A4B4 0%, #6DD5ED 100%);
+        --primary-color: #00A4B4;
+        --secondary-color: #6DD5ED;
+    }
+
+    .auth-card {
+        max-width: 450px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+    }
+
+    .auth-header {
+        background: var(--primary-gradient);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .auth-header .logo {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        backdrop-filter: blur(5px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .auth-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 2px rgba(0, 164, 180, 0.2);
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    .btn-primary {
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 1rem;
+        background: var(--primary-gradient);
+        box-shadow: 0 4px 15px rgba(0, 164, 180, 0.2);
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 164, 180, 0.3);
+    }
+
+    .page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 2rem;
+    }
+
+    .auth-footer {
+        padding: 1.5rem 2rem;
+        text-align: center;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .auth-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .auth-footer a:hover {
+        color: var(--secondary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1>Create Account</h1>
+            <p>Please fill in your details to register</p>
+        </div>
+
+        <div class="auth-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                        {% if message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" action="{% url 'accounts:register' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Please correct the errors below.
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <input type="text" 
+                           class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                           name="username" 
+                           placeholder="Username" 
+                           value="{{ form.username.value|default:'' }}"
+                           required>
+                    {% if form.username.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <input type="email" 
+                           class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                           name="email" 
+                           placeholder="Email Address" 
+                           value="{{ form.email.value|default:'' }}"
+                           required>
+                    {% if form.email.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="first_name" placeholder="First Name" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="last_name" placeholder="Last Name" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="tel" class="form-control" name="phone_number" placeholder="Phone Number" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="date" class="form-control" name="date_of_birth" required>
+                </div>
+
+                <div class="form-group">
+                    <textarea class="form-control" name="address" placeholder="Address" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" 
+                           class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                           name="password1" 
+                           placeholder="Password" 
+                           required>
+                    {% if form.password1.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.password1.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if form.password1.help_text %}
+                        <small class="form-text text-muted">{{ form.password1.help_text }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <input type="password" 
+                           class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                           name="password2" 
+                           placeholder="Confirm Password" 
+                           required>
+                    {% if form.password2.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.password2.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Register
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-footer">
+            <p class="mb-0">
+                Already have an account? <a href="{% url 'accounts:patient_login' %}">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

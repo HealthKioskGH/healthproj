@@ -1,0 +1,1380 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Override base template variables for doctor dashboard */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
+        --primary-color: #00b09b !important;
+        --secondary-color: #96c93d !important;
+        --primary-light: rgba(0, 176, 155, 0.1) !important;
+        --secondary-light: rgba(150, 201, 61, 0.1) !important;
+        --warning-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff4b2b 100%);
+        --success-gradient: var(--primary-gradient);
+    }
+
+    /* Override navbar specifically for doctor dashboard */
+    .navbar {
+        background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
+    }
+
+    body {
+        background-color: #f8f9f8;
+    }
+
+    .dashboard-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        overflow: hidden;
+        background: white;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+        line-height: 1;
+        color: var(--primary-color);
+    }
+
+    .patient-card {
+        border-left: 4px solid var(--primary-color);
+        margin-bottom: 1rem;
+        padding: 1.5rem;
+        border-radius: 10px;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .patient-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .vital-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .vital-badge i {
+        font-size: 0.9rem;
+    }
+
+    .vital-badge.primary {
+        background: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    .vital-badge.success {
+        background: rgba(150, 201, 61, 0.1);
+        color: var(--secondary-color);
+    }
+
+    .vital-badge.warning {
+        background: rgba(246, 211, 101, 0.1);
+        color: #f6d365;
+    }
+
+    .vital-badge.danger {
+        background: rgba(255, 107, 107, 0.1);
+        color: #ff6b6b;
+    }
+
+    .appointment-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .appointment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .appointment-list {
+        padding-right: 5px;
+    }
+
+    .appointment-list::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .appointment-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .appointment-list::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 10px;
+    }
+
+    .appointment-list::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+    }
+
+    .alert-card {
+        border-left: 4px solid;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        background: white;
+        transition: transform 0.2s;
+    }
+
+    .alert-card.high {
+        border-left-color: #ff4b2b;
+    }
+
+    .alert-card.medium {
+        border-left-color: #fda085;
+    }
+
+    .alert-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .search-box {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e0e0e0;
+        transition: all 0.2s;
+    }
+
+    .search-box:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem var(--primary-light);
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+        background: var(--primary-gradient);
+    }
+
+    .btn-modern {
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 500;
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        opacity: 0.9;
+    }
+
+    .btn-modern.light {
+        background: white;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-light);
+    }
+
+    .btn-modern.light:hover {
+        background: var(--primary-light);
+    }
+
+    .modal-content {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .nav-pills .nav-link {
+        color: var(--primary-color);
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        margin-right: 0.5rem;
+        transition: all 0.2s;
+    }
+    .nav-link {
+        color: #198754 !important;
+    }
+
+    .nav-pills .nav-link.active {
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+        margin-bottom: 1rem;
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .symptom-card {
+        border-left: 4px solid var(--primary-color);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        background: white;
+        transition: transform 0.2s;
+    }
+
+    .symptom-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .text-primary {
+        color: var(--primary-color) !important;
+    }
+
+    .bg-primary {
+        background: var(--primary-gradient) !important;
+    }
+
+    .patient-profile-pic {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .patient-profile-pic:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="d-flex align-items-center">
+                    <div class="profile-pic-container me-4">
+                        <div class="position-relative">
+                            <img src="{{ user.profile_picture_url }}" 
+                                 alt="Profile Picture" 
+                                 class="rounded-circle profile-pic"
+                                 id="currentProfilePic"
+                                 onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                            <div class="profile-pic-overlay" onclick="document.getElementById('profilePicInput').click();">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <form id="profilePicForm" style="display: none;">
+                            {% csrf_token %}
+                            <input type="file" 
+                                   id="profilePicInput" 
+                                   name="profile_picture" 
+                                   accept="image/*"
+                                   onchange="uploadProfilePic(this)">
+                        </form>
+                    </div>
+                    <div>
+                        <h1 class="mb-0">Welcome, Dr. {{ request.user.get_full_name }}</h1>
+                        <p class="mb-0 text-white-50">{{ request.user.specialization }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-modern light me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                    <i class="fas fa-user-md me-2"></i>My Profile
+                </button>
+                <a href="{% url 'appointments:list' %}" class="btn btn-modern light">
+                    <i class="fas fa-calendar-alt me-2"></i>View All Appointments
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-4 mb-4">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-muted small">Assigned Patients</div>
+                            <div class="stat-value">{{ assigned_patients.count }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-4 mb-4">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-muted small">Today's Appointments</div>
+                            <div class="stat-value">{{ today_appointments.count }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-4 mb-4">
+            <div class="stat-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-muted small">Total Appointments</div>
+                            <div class="stat-value">{{ upcoming_appointments.count }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 mb-4">
+            <div class="stat-card">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 text-primary">
+                            <i class="fas fa-user-md me-2"></i>My Patients
+                        </h5>
+                        <div class="input-group" style="width: 250px;">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0 search-box" 
+                                   placeholder="Search patients..." id="patientSearch">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    {% if assigned_patients %}
+                        <div class="patient-list" style="max-height: 600px; overflow-y: auto;">
+                            {% for patient in assigned_patients %}
+                                <div class="patient-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <img src="{{ patient.profile_picture_url }}" 
+                                                         alt="{{ patient.get_full_name }}"
+                                                         class="rounded-circle patient-profile-pic"
+                                                         onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                                                         style="width: 50px; height: 50px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">{{ patient.get_full_name }}</h6>
+                                                    <small class="text-muted">ID: {{ patient.id }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-5">
+                                            {% with latest_vital=patient.vitalsigns_set.first %}
+                                                {% if latest_vital %}
+                                                    <div class="row g-2">
+                                                        <div class="col-auto">
+                                                            <span class="vital-badge primary">
+                                                                <i class="fas fa-heartbeat me-1"></i>{{ latest_vital.pulse_rate }} bpm
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <span class="vital-badge primary">
+                                                                <i class="fas fa-tachometer-alt me-1"></i>{{ latest_vital.blood_pressure }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <span class="vital-badge {% if latest_vital.bmi < 18.5 %}warning{% elif latest_vital.bmi < 25 %}success{% elif latest_vital.bmi < 30 %}warning{% else %}danger{% endif %}">
+                                                                <i class="fas fa-calculator me-1"></i>BMI: {{ latest_vital.bmi|floatformat:1 }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2 small text-muted">
+                                                        Last updated: {{ latest_vital.recorded_at|date:"M d, Y H:i" }}
+                                                    </div>
+                                                {% else %}
+                                                    <span class="text-muted small">No vitals recorded</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="col-lg-2">
+                                            {% with latest_symptom=patient.symptom_set.first %}
+                                                {% if latest_symptom %}
+                                                    <span class="vital-badge {% if latest_symptom.severity >= 7 %}danger{% elif latest_symptom.severity >= 4 %}warning{% else %}success{% endif %}">
+                                                        <i class="fas fa-notes-medical me-1"></i>
+                                                        Severity: {{ latest_symptom.severity }}/10
+                                                    </span>
+                                                    <div class="mt-2 small text-muted" title="{{ latest_symptom.symptom_name }}">
+                                                        {{ latest_symptom.symptom_name|truncatechars:20 }}
+                                                    </div>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="col-lg-2 text-end">
+                                            <button class="btn btn-modern" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#patientDetailsModal{{ patient.id }}">
+                                                <i class="fas fa-eye me-2"></i>View Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse mt-3" id="patientCharts{{ patient.id }}">
+                                        <div class="chart-container">
+                                            <canvas id="vitalsChart{{ patient.id }}"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-md fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No patients assigned yet</h5>
+                            <p class="text-muted">Your patient list will appear here</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <!-- Today's Schedule -->
+            <div class="stat-card mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 text-primary">
+                        <i class="fas fa-calendar-day me-2"></i>Today's Schedule
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if today_appointments %}
+                        <div class="appointment-list" style="max-height: 300px; overflow-y: auto;">
+                            {% for appointment in today_appointments %}
+                                <div class="appointment-card">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="me-3">
+                                            <img src="{{ appointment.patient.profile_picture_url }}" 
+                                                 alt="{{ appointment.patient.get_full_name }}"
+                                                 class="rounded-circle"
+                                                 onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                                                 style="width: 50px; height: 50px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">{{ appointment.patient.get_full_name }}</h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>{{ appointment.appointment_date|time:"g:i A" }}
+                                                {% if appointment.is_rescheduled %}
+                                                <span class="badge bg-warning text-dark ms-2">
+                                                    <i class="fas fa-sync-alt me-1"></i>Rescheduled
+                                                </span>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="vital-badge primary">
+                                        <i class="fas fa-stethoscope me-1"></i>{{ appointment.reason|truncatechars:50 }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No appointments today</h5>
+                            <p class="text-muted">Your schedule is clear</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Upcoming Appointments -->
+            <div class="stat-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 text-primary">
+                        <i class="fas fa-calendar-alt me-2"></i>Upcoming Appointments
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if upcoming_appointments %}
+                        <div class="appointment-list" style="max-height: 300px; overflow-y: auto;">
+                            {% for appointment in upcoming_appointments %}
+                                <div class="appointment-card">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="me-3">
+                                            <img src="{{ appointment.patient.profile_picture_url }}" 
+                                                 alt="{{ appointment.patient.get_full_name }}"
+                                                 class="rounded-circle"
+                                                 onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                                                 style="width: 50px; height: 50px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">{{ appointment.patient.get_full_name }}</h6>
+                                            <div class="text-muted small">
+                                                <i class="fas fa-calendar me-1"></i>{{ appointment.appointment_date|date:"M d, Y" }}
+                                                <i class="fas fa-clock ms-2 me-1"></i>{{ appointment.appointment_date|time:"g:i A" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="vital-badge primary">
+                                        <i class="fas fa-stethoscope me-1"></i>{{ appointment.reason|truncatechars:50 }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="text-center mt-3">
+                                <a href="{% url 'appointments:list' %}" class="btn btn-modern">
+                                    <i class="fas fa-calendar-alt me-2"></i>View All Appointments
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No upcoming appointments</h5>
+                            <p class="text-muted">Your future schedule is clear</p>
+                            <a href="{% url 'appointments:list' %}" class="btn btn-modern mt-2">
+                                <i class="fas fa-calendar-alt me-2"></i>View All Appointments
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Details Modals -->
+{% for patient in assigned_patients %}
+<div class="modal fade" id="patientDetailsModal{{ patient.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center">
+                    <img src="{{ patient.profile_picture_url }}" 
+                         alt="{{ patient.get_full_name }}"
+                         class="rounded-circle me-3"
+                         onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                         style="width: 60px; height: 60px; object-fit: cover; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-circle me-2"></i>{{ patient.get_full_name }}
+                    </h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <!-- Navigation tabs -->
+                <ul class="nav nav-pills p-3" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#profile{{ patient.id }}">
+                            <i class="fas fa-user-circle me-2"></i>Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#vitals{{ patient.id }}">
+                            <i class="fas fa-heartbeat me-2"></i>Vitals
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#symptoms{{ patient.id }}">
+                            <i class="fas fa-notes-medical me-2"></i>Symptoms
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab content -->
+                <div class="tab-content p-4">
+                    <!-- Profile Tab -->
+                    <div class="tab-pane fade show active" id="profile{{ patient.id }}">
+                        {% with profile=patient.healthprofile %}
+                            {% if profile %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="vital-badge primary">
+                                            <i class="fas fa-tint me-2"></i>Blood Type: {{ profile.blood_type|default:"Not specified" }}
+                                        </div>
+                                        <div class="health-metric">
+                                            <div class="text-muted small mb-1">Chronic Conditions</div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-heartbeat me-2 text-primary"></i>
+                                                <strong>
+                                                    {% if profile.medical_conditions %}
+                                                        {{ profile.medical_conditions }}
+                                                    {% else %}
+                                                        <span class="text-muted">None reported</span>
+                                                    {% endif %}
+                                                </strong>
+                                            </div>
+                                        </div>
+                                        <div class="health-metric">
+                                            <div class="text-muted small mb-1">Current Medications</div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-pills me-2 text-primary"></i>
+                                                <strong>
+                                                    {% if profile.current_medications %}
+                                                        {{ profile.current_medications }}
+                                                    {% else %}
+                                                        <span class="text-muted">None reported</span>
+                                                    {% endif %}
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="mb-2">Emergency Contact</h6>
+                                        <p class="mb-1">{{ profile.emergency_contact_name }}</p>
+                                        <p class="mb-3">{{ profile.emergency_contact_phone }}</p>
+                                        <h6 class="mb-2">Current Medications</h6>
+                                        <p class="mb-3">{{ profile.medications|default:"None reported" }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="fas fa-clock me-1"></i>Last updated: {{ profile.last_updated|date:"M d, Y H:i" }}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-user-circle fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No health profile</h5>
+                                    <p class="text-muted">Patient hasn't completed their health profile yet</p>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <!-- Vitals Tab -->
+                    <div class="tab-pane fade" id="vitals{{ patient.id }}">
+                        <div class="chart-container mb-4">
+                            <canvas id="vitalsChart{{ patient.id }}"></canvas>
+                        </div>
+                        {% with vitals=patient.vitalsigns_set.first %}
+                            {% if vitals %}
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="vital-badge primary">
+                                            <i class="fas fa-heartbeat me-2"></i>Pulse Rate: {{ vitals.pulse_rate }} bpm
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="vital-badge primary">
+                                            <i class="fas fa-tachometer-alt me-2"></i>BP: {{ vitals.blood_pressure }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="vital-badge {% if vitals.bmi < 18.5 %}warning{% elif vitals.bmi < 25 %}success{% elif vitals.bmi < 30 %}warning{% else %}danger{% endif %}">
+                                            <i class="fas fa-calculator me-2"></i>BMI: {{ vitals.bmi|floatformat:1 }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted small mt-3">
+                                    <i class="fas fa-clock me-1"></i>Last recorded: {{ vitals.recorded_at|date:"M d, Y H:i" }}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <!-- Symptoms Tab -->
+                    <div class="tab-pane fade" id="symptoms{{ patient.id }}">
+                        {% with symptoms=patient.symptom_set.all|slice:":5" %}
+                            {% if symptoms %}
+                                {% for symptom in symptoms %}
+                                    <div class="symptom-card">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">{{ symptom.symptom_name }}</h6>
+                                            <span class="vital-badge {% if symptom.severity >= 7 %}danger{% elif symptom.severity >= 4 %}warning{% else %}success{% endif %}">
+                                                Severity: {{ symptom.severity }}/10
+                                            </span>
+                                        </div>
+                                        <p class="mb-2">{{ symptom.description }}</p>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-calendar me-1"></i>Onset: {{ symptom.onset_date|date:"M d, Y" }}
+                                            <i class="fas fa-clock ms-3 me-1"></i>Recorded: {{ symptom.recorded_at|date:"M d, Y H:i" }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-notes-medical fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No symptoms</h5>
+                                    <p class="text-muted">Patient hasn't logged any symptoms yet</p>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-md me-2"></i>Doctor Profile
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Profile Info -->
+                <div class="text-center mb-4">
+                    <div class="avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        {{ request.user.get_full_name|make_list|first }}
+                    </div>
+                    <h4 class="mb-1">Dr. {{ request.user.get_full_name }}</h4>
+                    <p class="text-muted mb-3">{{ request.user.specialization }}</p>
+                </div>
+                <div class="profile-info mb-4">
+                    <div class="mb-3">
+                        <label class="text-muted small">Email</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-envelope me-2 text-primary"></i>
+                            <span data-field="email">{{ request.user.email }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Specialization</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-stethoscope me-2 text-primary"></i>
+                            <span data-field="specialization">{{ request.user.specialization }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">License Number</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-id-card me-2 text-primary"></i>
+                            <span data-field="license_number">{{ request.user.license_number }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Years of Experience</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-md me-2 text-primary"></i>
+                            <span data-field="years_of_experience">{{ request.user.years_of_experience|default:"Not specified" }} years</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Qualifications</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-graduation-cap me-2 text-primary"></i>
+                            <span data-field="qualifications">{{ request.user.qualifications|default:"Not specified" }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Hospital Affiliations</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-hospital me-2 text-primary"></i>
+                            <span data-field="hospital_affiliations">{{ request.user.hospital_affiliations|default:"Not specified" }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Languages Spoken</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-language me-2 text-primary"></i>
+                            <span data-field="languages">{{ request.user.languages|default:"Not specified" }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Working Hours</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-clock me-2 text-primary"></i>
+                            <span data-field="working_hours">{{ request.user.working_hours|default:"9:00 AM - 5:00 PM" }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Contact Number</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-phone me-2 text-primary"></i>
+                            <span data-field="phone_number">{{ request.user.phone_number|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Emergency Contact</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-ambulance me-2 text-primary"></i>
+                            <span data-field="emergency_contact">{{ request.user.emergency_contact|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Office Address</label>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                            <span data-field="office_address">{{ request.user.office_address|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-modern w-100" data-bs-toggle="modal" data-bs-target="#editProfileFormModal">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Form Modal -->
+<div class="modal fade" id="editProfileFormModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'doctors:update_profile' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" name="full_name" 
+                               value="{{ request.user.get_full_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" 
+                               value="{{ request.user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Specialization</label>
+                        <input type="text" class="form-control" name="specialization" 
+                               value="{{ request.user.specialization }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">License Number</label>
+                        <input type="text" class="form-control" name="license_number" 
+                               value="{{ request.user.license_number }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Years of Experience</label>
+                        <input type="number" class="form-control" name="years_of_experience" 
+                               value="{{ request.user.years_of_experience }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Qualifications</label>
+                        <input type="text" class="form-control" name="qualifications" 
+                               value="{{ request.user.qualifications }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hospital Affiliations</label>
+                        <input type="text" class="form-control" name="hospital_affiliations" 
+                               value="{{ request.user.hospital_affiliations }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Languages Spoken</label>
+                        <input type="text" class="form-control" name="languages" 
+                               value="{{ request.user.languages }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Working Hours</label>
+                        <input type="text" class="form-control" name="working_hours" 
+                               value="{{ request.user.working_hours|default:'9:00 AM - 5:00 PM' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contact Number</label>
+                        <input type="tel" class="form-control" name="phone_number" 
+                               value="{{ request.user.phone_number }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Emergency Contact</label>
+                        <input type="text" class="form-control" name="emergency_contact" 
+                               value="{{ request.user.emergency_contact }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Office Address</label>
+                        <textarea class="form-control" name="office_address" rows="2">{{ request.user.office_address }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modern light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-modern">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Patient search functionality
+    document.getElementById('patientSearch')?.addEventListener('keyup', function() {
+        var searchText = this.value.toLowerCase();
+        var patientCards = document.querySelectorAll('.patient-card');
+        
+        patientCards.forEach(function(card) {
+            var patientName = card.querySelector('h6').textContent.toLowerCase();
+            if (patientName.includes(searchText)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Handle profile form submission
+    const profileForm = document.querySelector('#editProfileFormModal form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrftoken
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Close the edit form modal
+                    const editModal = document.getElementById('editProfileFormModal');
+                    const bsEditModal = bootstrap.Modal.getInstance(editModal);
+                    if (bsEditModal) {
+                        bsEditModal.hide();
+                    }
+                    
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>Profile updated successfully
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    const container = document.querySelector('.dashboard-header .container-fluid');
+                    if (container) {
+                        container.insertAdjacentElement('afterend', alertDiv);
+                    }
+                    
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || 'Profile update failed');
+                }
+            })
+            .catch(error => {
+                // Show error message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-exclamation-circle me-2"></i>${error.message || 'Error updating profile'}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                const container = document.querySelector('.dashboard-header .container-fluid');
+                if (container) {
+                    container.insertAdjacentElement('afterend', alertDiv);
+                }
+            });
+        });
+    }
+
+    {% if vitals_data %}
+    // Pass vitals data from Django context to JavaScript
+    const vitalsData = JSON.parse('{{ vitals_data|escapejs|safe }}');
+    {% else %}
+    const vitalsData = {};
+    {% endif %}
+
+    // Initialize vitals charts
+    document.addEventListener('DOMContentLoaded', function() {
+        const charts = document.querySelectorAll('[id^="vitalsChart"]');
+        
+        charts.forEach(function(chartCanvas) {
+            const ctx = chartCanvas.getContext('2d');
+            const patientId = chartCanvas.id.replace('vitalsChart', '');
+            const patientVitals = vitalsData[patientId] || [];
+            
+            if (patientVitals && patientVitals.length > 0) {
+                const reversedVitals = [...patientVitals].reverse();
+                
+                // Extract blood pressure values
+                const systolicValues = reversedVitals.map(v => {
+                    const [systolic] = v.blood_pressure.split('/');
+                    return parseInt(systolic);
+                }).filter(Boolean);
+                
+                const diastolicValues = reversedVitals.map(v => {
+                    const [, diastolic] = v.blood_pressure.split('/');
+                    return parseInt(diastolic);
+                }).filter(Boolean);
+
+                if (systolicValues.length > 0 && diastolicValues.length > 0) {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: reversedVitals.map(v => v.date),
+                            datasets: [{
+                                label: 'Pulse Rate (bpm)',
+                                data: reversedVitals.map(v => v.pulse_rate),
+                                borderColor: '#4e73df',
+                                backgroundColor: '#4e73df20',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'y'
+                            }, {
+                                label: 'Systolic BP',
+                                data: systolicValues,
+                                borderColor: '#e74a3b',
+                                backgroundColor: '#e74a3b20',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'bloodPressure'
+                            }, {
+                                label: 'Diastolic BP',
+                                data: diastolicValues,
+                                borderColor: '#f6c23e',
+                                backgroundColor: '#f6c23e20',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'bloodPressure'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        usePointStyle: true,
+                                        padding: 15
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    position: 'left',
+                                    title: {
+                                        display: true,
+                                        text: 'Pulse Rate (bpm)'
+                                    },
+                                    grid: {
+                                        drawBorder: false
+                                    }
+                                },
+                                bloodPressure: {
+                                    beginAtZero: false,
+                                    position: 'right',
+                                    title: {
+                                        display: true,
+                                        text: 'Blood Pressure (mmHg)'
+                                    },
+                                    grid: {
+                                        drawBorder: false,
+                                        display: false
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    showNoDataMessage(chartCanvas);
+                }
+            } else {
+                showNoDataMessage(chartCanvas);
+            }
+        });
+
+        // Helper function to show no data message
+        function showNoDataMessage(canvas) {
+            const container = canvas.parentElement;
+            container.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No vitals data</h5>
+                    <p class="text-muted">Patient hasn't recorded any vital signs yet</p>
+                </div>
+            `;
+        }
+    });
+
+    // Handle notification actions based on type
+    function viewNotification(id, title, message, time, type) {
+        // Mark as read
+        if (!document.getElementById(`notification-${id}`).classList.contains('read')) {
+            markAsRead(id);
+        }
+
+        // Set modal content
+        document.getElementById('notificationModalTitle').textContent = title;
+        document.getElementById('notificationModalTime').textContent = `${time} ago`;
+
+        // Set icon and type badge
+        const iconElement = document.getElementById('notificationModalIcon');
+        const typeBadge = document.getElementById('notificationModalType');
+        const actionsContainer = document.getElementById('notificationModalActions');
+        iconElement.innerHTML = '';
+        let icon, typeText, typeColor, actionButton;
+        
+        {% if user.is_doctor %}
+        // Doctor-specific actions
+        switch (type) {
+            case 'appointment_created':
+            case 'appointment_updated':
+            case 'appointment_cancelled':
+                icon = type === 'appointment_created' ? 'calendar-plus' : 
+                      type === 'appointment_updated' ? 'calendar-check' : 'calendar-times';
+                typeText = type === 'appointment_created' ? 'New Appointment' :
+                          type === 'appointment_updated' ? 'Appointment Update' : 'Appointment Cancelled';
+                typeColor = type === 'appointment_created' ? '#0d6efd' :
+                           type === 'appointment_updated' ? '#ffc107' : '#dc3545';
+                actionButton = `
+                    <a href="{% url 'appointments:list' %}" class="btn btn-primary">
+                        <i class="fas fa-calendar-alt me-2"></i>View All Appointments
+                    </a>`;
+                break;
+            case 'vital_signs_updated':
+                icon = 'heartbeat';
+                typeText = 'Vitals Update';
+                typeColor = '#198754';
+                actionButton = `
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#patientDetailsModal${patientId}">
+                        <i class="fas fa-heartbeat me-2"></i>View Patient Details
+                    </button>`;
+                break;
+            case 'symptom_reported':
+                icon = 'notes-medical';
+                typeText = 'New Symptoms';
+                typeColor = '#0dcaf0';
+                actionButton = `
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#patientDetailsModal${patientId}">
+                        <i class="fas fa-notes-medical me-2"></i>View Patient Details
+                    </button>`;
+                break;
+            case 'primary_doctor_selected':
+                icon = 'user-md';
+                typeText = 'New Patient';
+                typeColor = '#0d6efd';
+                actionButton = `
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#patientDetailsModal${patientId}">
+                        <i class="fas fa-user-md me-2"></i>View Patient Details
+                    </button>`;
+                break;
+            default:
+                icon = 'bell';
+                typeText = 'Notification';
+                typeColor = '#6c757d';
+                actionButton = '';
+        }
+        {% else %}
+        // Patient-specific actions (keep existing code)
+        {% endif %}
+        
+        iconElement.innerHTML = `<i class="fas fa-${icon}"></i>`;
+        typeBadge.textContent = typeText;
+        typeBadge.style.backgroundColor = `${typeColor}20`;
+        typeBadge.style.color = typeColor;
+
+        // Parse and display message details
+        const detailsContainer = document.getElementById('notificationModalDetails');
+        detailsContainer.innerHTML = '';
+
+        // Split message into key details
+        const details = message.split('\n').filter(Boolean);
+        details.forEach(detail => {
+            const div = document.createElement('div');
+            div.className = 'detail-item';
+            div.textContent = detail;
+            detailsContainer.appendChild(div);
+        });
+
+        // Add action button if available
+        actionsContainer.innerHTML = actionButton;
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+        modal.show();
+
+        // Update notification item in the dropdown
+        const notificationItem = document.getElementById(`notification-${id}`);
+        if (notificationItem) {
+            notificationItem.classList.remove('unread');
+            const badge = notificationItem.querySelector('.notification-badge');
+            if (badge) {
+                badge.remove();
+            }
+            updateNotificationCount();
+        }
+    }
+
+    function uploadProfilePic(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const maxSize = {{ max_upload_size|default:5242880 }}; // 5MB default
+
+            if (file.size > maxSize) {
+                alert('File is too large. Maximum size is 5MB.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('currentProfilePic').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+
+            // Upload to server
+            fetch('{% url "accounts:update_profile_picture" %}', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const toast = new bootstrap.Toast(document.getElementById('successToast'));
+                    document.querySelector('#successToast .toast-body').textContent = 'Profile picture updated successfully!';
+                    toast.show();
+                } else {
+                    throw new Error(data.error || 'Upload failed');
+                }
+            })
+            .catch(error => {
+                alert('Error uploading profile picture: ' + error.message);
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show all tab content by default when modal opens
+        const patientDetailsModal = document.getElementById('patientDetailsModal');
+        if (patientDetailsModal) {
+            patientDetailsModal.addEventListener('show.bs.modal', function (event) {
+                // Get all tab panes
+                const tabPanes = this.querySelectorAll('.tab-pane');
+                
+                // Show all tab panes but keep only first one active
+                tabPanes.forEach((pane, index) => {
+                    pane.classList.add('show');
+                    if (index === 0) {
+                        pane.classList.add('active');
+                    }
+                });
+
+                // Activate first tab
+                const firstTab = this.querySelector('.nav-tabs .nav-link:first-child');
+                if (firstTab) {
+                    firstTab.classList.add('active');
+                }
+            });
+
+            // Update tab click behavior to only toggle active state
+            const tabLinks = patientDetailsModal.querySelectorAll('.nav-tabs .nav-link');
+            tabLinks.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs and panes
+                    tabLinks.forEach(t => t.classList.remove('active'));
+                    patientDetailsModal.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and its corresponding pane
+                    this.classList.add('active');
+                    const pane = patientDetailsModal.querySelector(this.getAttribute('href'));
+                    if (pane) {
+                        pane.classList.add('active');
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+<!-- Success Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="fas fa-check-circle text-success me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% endblock %} 

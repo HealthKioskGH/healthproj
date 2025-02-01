@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background Circle -->
+    <circle cx="400" cy="300" r="250" fill="#f0f4ff" opacity="0.5"/>
+    
+    <!-- Medical Cross -->
+    <g transform="translate(350,250)">
+        <rect x="-15" y="-40" width="30" height="80" rx="5" fill="#0061f2"/>
+        <rect x="-40" y="-15" width="80" height="30" rx="5" fill="#0061f2"/>
+        <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+    </g>
+    
+    <!-- Heartbeat Line -->
+    <path d="M 100,300 L 200,300 L 250,200 L 300,400 L 350,300 L 700,300" 
+          stroke="#6900f2" 
+          stroke-width="4" 
+          fill="none" 
+          stroke-linecap="round">
+        <animate attributeName="stroke-dasharray" 
+                 values="0,1000;1000,0" 
+                 dur="3s" 
+                 repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Circular Icons -->
+    <g>
+        <!-- Stethoscope -->
+        <circle cx="150" cy="150" r="30" fill="#e3e9ff"/>
+        <path d="M 135,150 Q 150,135 165,150" stroke="#0061f2" stroke-width="3" fill="none"/>
+        <circle cx="150" cy="155" r="5" fill="#0061f2"/>
+        
+        <!-- Pills -->
+        <circle cx="650" cy="150" r="30" fill="#e3e9ff"/>
+        <path d="M 635,150 L 665,150 M 650,135 L 650,165" stroke="#6900f2" stroke-width="3"/>
+        
+        <!-- Heart -->
+        <circle cx="150" cy="450" r="30" fill="#e3e9ff"/>
+        <path d="M 150,460 L 140,450 A 10,10 0 1,1 160,450 Z" fill="#0061f2"/>
+        
+        <!-- Chart -->
+        <circle cx="650" cy="450" r="30" fill="#e3e9ff"/>
+        <path d="M 635,450 L 645,440 L 655,460 L 665,435" stroke="#6900f2" stroke-width="3" fill="none"/>
+    </g>
+    
+    <!-- Floating Particles -->
+    <g>
+        <circle cx="250" cy="150" r="5" fill="#0061f2" opacity="0.5">
+            <animate attributeName="cy" values="150;140;150" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="550" cy="250" r="5" fill="#6900f2" opacity="0.5">
+            <animate attributeName="cy" values="250;260;250" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="350" cy="450" r="5" fill="#0061f2" opacity="0.5">
+            <animate attributeName="cy" values="450;440;450" dur="1.8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="450" cy="150" r="5" fill="#6900f2" opacity="0.5">
+            <animate attributeName="cy" values="150;160;150" dur="2.2s" repeatCount="indefinite"/>
+        </circle>
+    </g>
+    
+    <!-- Connecting Lines -->
+    <g stroke="#e3e9ff" stroke-width="2" stroke-dasharray="5,5">
+        <line x1="180" y1="150" x2="320" y2="250"/>
+        <line x1="620" y1="150" x2="480" y2="250"/>
+        <line x1="180" y1="450" x2="320" y2="350"/>
+        <line x1="620" y1="450" x2="480" y2="350"/>
+    </g>
+</svg> 

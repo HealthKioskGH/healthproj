@@ -1,0 +1,142 @@
+{% extends "patients/base_patient.html" %}
+
+{% block title %}Update Health Profile{% endblock %}
+
+{% block page_specific_css %}
+<style>
+    /* Your profile form specific styles */
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-circle me-2"></i>Update Health Profile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="blood_type" class="form-label">Blood Type</label>
+                            <select class="form-select" id="blood_type" name="blood_type" required>
+                                <option value="" {% if not health_profile.blood_type %}selected{% endif %}>Select blood type...</option>
+                                <option value="A+" {% if health_profile.blood_type == "A+" %}selected{% endif %}>A+</option>
+                                <option value="A-" {% if health_profile.blood_type == "A-" %}selected{% endif %}>A-</option>
+                                <option value="B+" {% if health_profile.blood_type == "B+" %}selected{% endif %}>B+</option>
+                                <option value="B-" {% if health_profile.blood_type == "B-" %}selected{% endif %}>B-</option>
+                                <option value="AB+" {% if health_profile.blood_type == "AB+" %}selected{% endif %}>AB+</option>
+                                <option value="AB-" {% if health_profile.blood_type == "AB-" %}selected{% endif %}>AB-</option>
+                                <option value="O+" {% if health_profile.blood_type == "O+" %}selected{% endif %}>O+</option>
+                                <option value="O-" {% if health_profile.blood_type == "O-" %}selected{% endif %}>O-</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="allergies" class="form-label">Allergies</label>
+                            <textarea class="form-control" id="allergies" name="allergies" rows="3" 
+                                    placeholder="List any allergies, or write 'None' if no allergies">{{ health_profile.allergies }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chronic_conditions" class="form-label">Chronic Conditions</label>
+                            <textarea class="form-control" id="chronic_conditions" name="chronic_conditions" rows="3"
+                                    placeholder="List any chronic conditions, or write 'None' if none">{{ health_profile.medical_conditions }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="medications" class="form-label">Current Medications</label>
+                            <textarea class="form-control" id="medications" name="medications" rows="3"
+                                    placeholder="List current medications, or write 'None' if not taking any">{{ health_profile.current_medications }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="email" 
+                                       name="email" 
+                                       value="{{ user.email }}"
+                                       required>
+                                {% if email_verified %}
+                                    <span class="input-group-text bg-success text-white">
+                                        <i class="fas fa-check-circle me-1"></i> Verified
+                                    </span>
+                                {% else %}
+                                    <span class="input-group-text bg-warning text-dark">
+                                        <i class="fas fa-exclamation-circle me-1"></i> Unverified
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if not email_verified %}
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Your email is not verified. 
+                                    <a href="{% url 'accounts:resend_verification' %}" class="text-primary">
+                                        Resend verification email
+                                    </a>
+                                </small>
+                            </div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <label for="emergency_contact_name" class="form-label">Emergency Contact Name</label>
+                            <input type="text" class="form-control" id="emergency_contact_name" 
+                                   name="emergency_contact_name" value="{{ health_profile.emergency_contact_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="emergency_contact_phone" class="form-label">Emergency Contact Phone</label>
+                            <input type="tel" class="form-control" id="emergency_contact_phone" 
+                                   name="emergency_contact_phone" value="{{ health_profile.emergency_contact_phone }}" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Health Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this JavaScript at the bottom of your template -->
+{% block extra_js %}
+<script>
+    // Function to check email verification status
+    function checkEmailVerification() {
+        fetch('{% url "patients:check_email_verification" %}')
+            .then(response => response.json())
+            .then(data => {
+                const emailGroup = document.querySelector('#email').closest('.input-group');
+                const statusSpan = emailGroup.querySelector('.input-group-text');
+                
+                if (data.verified) {
+                    statusSpan.className = 'input-group-text bg-success text-white';
+                    statusSpan.innerHTML = '<i class="fas fa-check-circle me-1"></i> Verified';
+                    
+                    // Remove the verification message if it exists
+                    const verificationMsg = document.querySelector('.verification-message');
+                    if (verificationMsg) {
+                        verificationMsg.remove();
+                    }
+                }
+            });
+    }
+
+    // Check verification status every 30 seconds
+    setInterval(checkEmailVerification, 30000);
+</script>
+{% endblock %}
+{% endblock %} 

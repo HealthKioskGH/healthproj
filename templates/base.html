@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthKiosk - {% block title %}Home{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        :root {
+            --primary-color: #0061f2;  /* Blue theme */
+            --primary-gradient: linear-gradient(135deg, #0061f2 0%, #6900f2 100%);  /* Blue gradient */
+            --primary-light: rgba(0, 97, 242, 0.1);
+            --secondary-color: #6900f2;
+            --secondary-light: rgba(105, 0, 242, 0.1);
+            --success-color: #1cc88a;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+        }
+
+        body {
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main { flex: 1 0 auto; }
+
+        .footer {
+            flex-shrink: 0;
+            background: transparent !important;
+            margin-top: 0 !important;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand { 
+            font-weight: bold; 
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            transform: translateY(-1px);
+        }
+        
+        .nav-link.active {
+            color: white !important;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Notifications */
+        .notification-dropdown {
+            width: 380px;
+            max-height: 600px;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .notification-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px 20px;
+            transition: background 0.3s ease;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+
+        .notification-item:hover {
+            background-color: rgba(var(--bs-primary-rgb), 0.05);
+        }
+
+        .notification-item.unread {
+            background-color: rgba(var(--bs-primary-rgb), 0.05);
+            border-left-color: var(--primary-color);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 1.2rem;
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .notification-content { flex: 1; }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            color: var(--bs-dark);
+        }
+
+        .notification-message {
+            font-size: 0.85rem;
+            color: var(--bs-secondary);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .notification-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--bs-secondary);
+        }
+
+        .notification-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            background-color: rgba(var(--bs-primary-rgb), 0.1);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* Modal styles */
+        .modal-header {
+            background: var(--primary-gradient);
+            padding: 1.5rem;
+        }
+
+        .modal-body { padding: 1.5rem; }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+        }
+
+        .modal-footer .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        /* Custom scrollbar */
+        .notification-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notification-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb {
+            background-color: rgba(var(--bs-primary-rgb), 0.2);
+            border-radius: 3px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(var(--bs-primary-rgb), 0.3);
+        }
+
+        /* Logout button styles */
+        .btn-logout {
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 0.5rem 1.2rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Portal-specific logout button styles */
+        body.doctor-portal .btn-logout {
+            border-color: rgba(0, 176, 155, 0.3);
+        }
+
+        body.doctor-portal .btn-logout:hover {
+            background: rgba(0, 176, 155, 0.2);
+        }
+
+        body.patient-portal .btn-logout {
+            border-color: rgba(0, 97, 242, 0.3);
+        }
+
+        body.patient-portal .btn-logout:hover {
+            background: rgba(0, 97, 242, 0.2);
+        }
+
+        .logout-form {
+            margin: 0;
+            padding: 0.5rem;
+        }
+
+        .dropdown-item-text {
+            padding: 0;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast-notification {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 300px;
+            max-width: 400px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast-notification.success {
+            border-left: 4px solid #00c851;
+        }
+
+        .toast-notification.error {
+            border-left: 4px solid #ff4444;
+        }
+
+        .toast-notification.warning {
+            border-left: 4px solid #ffbb33;
+        }
+
+        .toast-notification.info {
+            border-left: 4px solid #33b5e5;
+        }
+
+        .toast-icon {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .toast-notification.success .toast-icon {
+            color: #00c851;
+        }
+
+        .toast-notification.error .toast-icon {
+            color: #ff4444;
+        }
+
+        .toast-notification.warning .toast-icon {
+            color: #ffbb33;
+        }
+
+        .toast-notification.info .toast-icon {
+            color: #33b5e5;
+        }
+
+        .toast-message {
+            flex-grow: 1;
+            font-size: 0.95rem;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 4px;
+            margin-left: 12px;
+            transition: color 0.2s;
+        }
+
+        .toast-close:hover {
+            color: #666;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* Logo styles */
+        .navbar-brand img {
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover img {
+            transform: scale(1.05);
+        }
+
+        /* For mobile responsiveness */
+        @media (max-width: 768px) {
+            .navbar-brand img {
+                height: 32px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <!-- Add this near the top of your body tag -->
+    <div class="toast-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast-notification {{ message.tags }}" role="alert">
+                    <div class="toast-icon">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="toast-message">{{ message }}</div>
+                    <button type="button" class="toast-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <img src="/static/images/healthkiosk-logo.png" alt="HealthKiosk" height="40" class="me-2">
+                <span>HealthKiosk</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if user.is_authenticated %}
+                        {% if user.is_patient %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                                   href="{% url 'patients:dashboard' %}">
+                                   <i class="fas fa-home me-1"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'vitals' %}active{% endif %}" 
+                                   href="{% url 'patients:vitals' %}">
+                                   <i class="fas fa-heartbeat me-1"></i>Vital Signs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'symptoms' %}active{% endif %}" 
+                                   href="{% url 'patients:symptoms' %}">
+                                   <i class="fas fa-notes-medical me-1"></i>Symptoms
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'list' %}active{% endif %}" 
+                                   href="{% url 'appointments:list' %}">
+                                   <i class="fas fa-calendar-alt me-1"></i>Appointments
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#bmiCalculatorModal">
+                                    <i class="fas fa-calculator me-1"></i>BMI Calculator
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-2 bg-light opacity-25"></li>
+                            
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.resolver_match.url_name == 'find-kiosk' %}active{% endif %}" 
+                                   href="{% url 'patients:find-kiosk' %}">
+                                   <i class="fas fa-laptop-medical me-1"></i>Find Kiosk
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle position-relative" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                                <i class="fas fa-bell me-1"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ unread_notifications_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                                <div class="notification-header">
+                                    <h6 class="mb-0 fw-bold">Notifications</h6>
+                                    {% if unread_notifications_count > 0 %}
+                                        <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="markAllAsRead()">
+                                            <i class="fas fa-check-double me-1"></i>Mark all read
+                                        </button>
+                                    {% endif %}
+                                </div>
+                                <div class="notification-list">
+                                    {% for notification in user.notifications.all|slice:":10" %}
+                                        <div class="notification-item {% if not notification.is_read %}unread{% endif %}" 
+                                             id="notification-{{ notification.id }}"
+                                             onclick="viewNotification({{ notification.id }}, '{{ notification.title|escapejs }}', '{{ notification.message|escapejs }}', '{{ notification.created_at|timesince }}', '{{ notification.notification_type }}')">
+                                            <div class="notification-icon">
+                                                {% if notification.notification_type == 'appointment_created' %}
+                                                    <i class="fas fa-calendar-plus"></i>
+                                                {% elif notification.notification_type == 'appointment_updated' %}
+                                                    <i class="fas fa-calendar-check"></i>
+                                                {% elif notification.notification_type == 'appointment_cancelled' %}
+                                                    <i class="fas fa-calendar-times"></i>
+                                                {% elif notification.notification_type == 'vital_signs_updated' %}
+                                                    <i class="fas fa-heartbeat"></i>
+                                                {% elif notification.notification_type == 'symptom_reported' %}
+                                                    <i class="fas fa-notes-medical"></i>
+                                                {% elif notification.notification_type == 'message' %}
+                                                    <i class="fas fa-envelope"></i>
+                                                {% elif notification.notification_type == 'prescription_added' %}
+                                                    <i class="fas fa-prescription"></i>
+                                                {% elif notification.notification_type == 'test_results' %}
+                                                    <i class="fas fa-flask"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="notification-content">
+                                                <div class="notification-title">{{ notification.title }}</div>
+                                                <div class="notification-message">{{ notification.message }}</div>
+                                                <div class="notification-meta">
+                                                    <span class="notification-time">{{ notification.created_at|timesince }} ago</span>
+                                                    {% if not notification.is_read %}
+                                                        <span class="notification-badge">New</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% empty %}
+                                        <div class="notification-empty">
+                                            <i class="fas fa-bell-slash"></i>
+                                            <p>No notifications</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% if user.notifications.count > 10 %}
+                                    <div class="notification-footer">
+                                        <a href="#" onclick="loadMoreNotifications()">View More</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-link">
+                                <i class="fas fa-user me-1"></i>Welcome, {{ user.get_full_name }}
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <div class="dropdown-item">
+                                <a href="{% url 'accounts:logout' %}" class="btn-logout">
+                                    <i class="fas fa-sign-out-alt"></i>Logout
+                                </a>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'accounts:patient_login' %}">
+                                        <i class="fas fa-user-injured me-2"></i>Patient Login
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'accounts:doctor_login' %}">
+                                        <i class="fas fa-user-md me-2"></i>Doctor Login
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:register' %}">
+                                <i class="fas fa-user-plus me-1"></i>Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© 2025 HealthKiosk. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+    function markAllAsRead() {
+        fetch('{% url "notifications:mark_all_read" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.querySelectorAll('.notification-item.unread').forEach(el => {
+                    el.classList.remove('unread');
+                    el.querySelector('.badge')?.remove();
+                });
+                const badge = document.getElementById('notification-badge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    function markAsRead(notificationId) {
+        fetch(`/notifications/${notificationId}/mark-read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                const notification = document.querySelector(`#notification-${notificationId}`);
+                if (notification) {
+                    notification.classList.remove('unread');
+                    notification.classList.add('read');
+                    const badge = notification.querySelector('.notification-badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+                    updateNotificationCount();
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error marking notification as read:', error);
+        });
+    }
+
+    function updateNotificationCount() {
+        const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+        const badge = document.getElementById('notification-badge');
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+
+    // Auto-mark notifications as read when clicked
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const notificationId = item.id.split('-')[1];
+                if (notificationId && !item.classList.contains('read')) {
+                    markAsRead(notificationId);
+                }
+            });
+        });
+    });
+    </script>
+
+    <!-- Notification Detail Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+                <div class="modal-header border-0" id="notificationModalHeader" style="background: var(--primary-gradient);">
+                    <h5 class="modal-title text-white" id="notificationModalTitle"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-start">
+                        <div class="notification-icon me-3" id="notificationModalIcon"></div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted" id="notificationModalTime"></small>
+                                <span class="badge" id="notificationModalType"></span>
+                            </div>
+                            <div id="notificationModalDetails" class="notification-details">
+                                <!-- Details will be inserted here -->
+                            </div>
+                            <div id="notificationModalActions" class="mt-4 text-end">
+                                <!-- Action buttons will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function viewNotification(id, title, message, time, type) {
+        // Mark as read
+        if (!document.getElementById(`notification-${id}`).classList.contains('read')) {
+            markAsRead(id);
+        }
+
+        // Set modal content
+        document.getElementById('notificationModalTitle').textContent = title;
+        document.getElementById('notificationModalTime').textContent = `${time} ago`;
+
+        // Set icon and type badge
+        const iconElement = document.getElementById('notificationModalIcon');
+        const typeBadge = document.getElementById('notificationModalType');
+        const actionsContainer = document.getElementById('notificationModalActions');
+        iconElement.innerHTML = '';
+        let icon, typeText, typeColor, actionButton;
+        
+        {% if user.is_doctor %}
+        // Doctor-specific actions
+        switch (type) {
+            case 'appointment_created':
+            case 'appointment_updated':
+            case 'appointment_cancelled':
+                icon = type === 'appointment_created' ? 'calendar-plus' : 
+                      type === 'appointment_updated' ? 'calendar-check' : 'calendar-times';
+                typeText = type === 'appointment_created' ? 'New Appointment' :
+                          type === 'appointment_updated' ? 'Appointment Update' : 'Appointment Cancelled';
+                typeColor = type === 'appointment_created' ? '#0d6efd' :
+                           type === 'appointment_updated' ? '#ffc107' : '#dc3545';
+                actionButton = `
+                    <a href="{% url 'appointments:list' %}" class="btn btn-primary">
+                        <i class="fas fa-calendar-alt me-2"></i>View All Appointments
+                    </a>`;
+                break;
+            case 'vital_signs_updated':
+                icon = 'heartbeat';
+                typeText = 'Vitals Update';
+                typeColor = '#198754';
+                actionButton = `
+                    <a href="{% url 'doctors:dashboard' %}" class="btn btn-primary">
+                        <i class="fas fa-heartbeat me-2"></i>View Patient Details
+                    </a>`;
+                break;
+            case 'symptom_reported':
+                icon = 'notes-medical';
+                typeText = 'New Symptoms';
+                typeColor = '#0dcaf0';
+                actionButton = `
+                    <a href="{% url 'doctors:dashboard' %}" class="btn btn-primary">
+                        <i class="fas fa-notes-medical me-2"></i>View Patient Details
+                    </a>`;
+                break;
+            case 'primary_doctor_selected':
+                icon = 'user-md';
+                typeText = 'New Patient';
+                typeColor = '#0d6efd';
+                actionButton = `
+                    <a href="{% url 'doctors:dashboard' %}" class="btn btn-primary">
+                        <i class="fas fa-user-md me-2"></i>View Patient Details
+                    </a>`;
+                break;
+            default:
+                icon = 'bell';
+                typeText = 'Notification';
+                typeColor = '#6c757d';
+                actionButton = '';
+        }
+        {% else %}
+        // Patient-specific actions
+        switch (type) {
+            case 'appointment_created':
+            case 'appointment_updated':
+            case 'appointment_cancelled':
+                icon = type === 'appointment_created' ? 'calendar-plus' : 
+                      type === 'appointment_updated' ? 'calendar-check' : 'calendar-times';
+                typeText = type === 'appointment_created' ? 'New Appointment' :
+                          type === 'appointment_updated' ? 'Appointment Update' : 'Appointment Cancelled';
+                typeColor = type === 'appointment_created' ? '#0d6efd' :
+                           type === 'appointment_updated' ? '#ffc107' : '#dc3545';
+                actionButton = `
+                    <a href="{% url 'appointments:list' %}" class="btn btn-primary">
+                        <i class="fas fa-calendar-alt me-2"></i>View Appointments
+                    </a>`;
+                break;
+            case 'vital_signs_updated':
+                icon = 'heartbeat';
+                typeText = 'Vitals Update';
+                typeColor = '#198754';
+                actionButton = `
+                    <a href="{% url 'patients:vitals' %}" class="btn btn-primary">
+                        <i class="fas fa-heartbeat me-2"></i>View Vitals
+                    </a>`;
+                break;
+            case 'symptom_reported':
+                icon = 'notes-medical';
+                typeText = 'New Symptoms';
+                typeColor = '#0dcaf0';
+                actionButton = `
+                    <a href="{% url 'patients:symptoms' %}" class="btn btn-primary">
+                        <i class="fas fa-notes-medical me-2"></i>View Symptoms
+                    </a>`;
+                break;
+            case 'health_profile_updated':
+                icon = 'user-circle';
+                typeText = 'Profile Update';
+                typeColor = '#6f42c1';
+                actionButton = `
+                    <a href="{% url 'patients:profile-update' %}" class="btn btn-primary">
+                        <i class="fas fa-user-circle me-2"></i>View Profile
+                    </a>`;
+                break;
+            case 'primary_doctor_selected':
+                icon = 'user-md';
+                typeText = 'Primary Doctor';
+                typeColor = '#0d6efd';
+                actionButton = `
+                    <a href="{% url 'patients:doctors' %}" class="btn btn-primary">
+                        <i class="fas fa-user-md me-2"></i>View Doctors
+                    </a>`;
+                break;
+            default:
+                icon = 'bell';
+                typeText = 'Notification';
+                typeColor = '#6c757d';
+                actionButton = '';
+        }
+        {% endif %}
+        
+        iconElement.innerHTML = `<i class="fas fa-${icon}"></i>`;
+        typeBadge.textContent = typeText;
+        typeBadge.style.backgroundColor = `${typeColor}20`;
+        typeBadge.style.color = typeColor;
+
+        // Parse and display message details
+        const detailsContainer = document.getElementById('notificationModalDetails');
+        detailsContainer.innerHTML = '';
+
+        // Split message into key details
+        const details = message.split('\n').filter(Boolean);
+        details.forEach(detail => {
+            const div = document.createElement('div');
+            div.className = 'detail-item';
+            div.textContent = detail;
+            detailsContainer.appendChild(div);
+        });
+
+        // Add action button if available
+        actionsContainer.innerHTML = actionButton;
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+        modal.show();
+
+        // Update notification item in the dropdown
+        const notificationItem = document.getElementById(`notification-${id}`);
+        if (notificationItem) {
+            notificationItem.classList.remove('unread');
+            const badge = notificationItem.querySelector('.notification-badge');
+            if (badge) {
+                badge.remove();
+            }
+            updateNotificationCount();
+        }
+    }
+    </script>
+
+    <!-- BMI Calculator Modal -->
+    <div class="modal fade" id="bmiCalculatorModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                <div class="modal-header border-0 position-relative py-4" style="background: var(--primary-gradient);">
+                    <h5 class="modal-title text-white position-relative mb-0 d-flex align-items-center">
+                        <i class="fas fa-calculator me-2"></i>BMI Calculator
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white position-relative" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="bmiForm" class="needs-validation" novalidate>
+                        <div class="row g-4">
+                            <div class="col-sm-6">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control shadow-none" id="height" name="height" placeholder="Enter height" step="0.01" style="border-radius: 16px; border: 2px solid #e0e0e0;" required>
+                                    <label for="height" class="text-muted">Height</label>
+                                    <div class="invalid-feedback">Please enter your height</div>
+                                </div>
+                                <select class="form-select mt-2 shadow-none" id="heightUnit" name="height_unit" style="border-radius: 16px; border: 2px solid #e0e0e0;">
+                                    <option value="cm">Centimeters</option>
+                                    <option value="ft">Feet</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control shadow-none" id="weight" name="weight" placeholder="Enter weight" step="0.1" style="border-radius: 16px; border: 2px solid #e0e0e0;" required>
+                                    <label for="weight" class="text-muted">Weight</label>
+                                    <div class="invalid-feedback">Please enter your weight</div>
+                                </div>
+                                <select class="form-select mt-2 shadow-none" id="weightUnit" name="weight_unit" style="border-radius: 16px; border: 2px solid #e0e0e0;">
+                                    <option value="kg">Kilograms</option>
+                                    <option value="lbs">Pounds</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-4" id="bmiResult" style="display: none;">
+                            <div class="text-center">
+                                <div class="position-relative d-inline-block mb-3">
+                                    <div class="position-absolute top-50 start-50 translate-middle" style="width: 120px; height: 120px; background: var(--primary-gradient); border-radius: 60px; opacity: 0.1;"></div>
+                                    <span class="display-4 fw-bold position-relative" id="bmiValue" style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">--</span>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge px-4 py-2" id="bmiCategory" style="font-size: 1rem; border-radius: 30px; transition: all 0.3s ease;">--</span>
+                                </div>
+                                <div class="alert mb-0" id="bmiAlert" role="alert" style="border-radius: 20px; border: none;">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <span id="bmiMessage" style="font-size: 0.95rem;">Enter your height and weight to calculate your BMI</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bmiForm = document.getElementById('bmiForm');
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const heightUnit = document.getElementById('heightUnit');
+        const weightUnit = document.getElementById('weightUnit');
+        const bmiResult = document.getElementById('bmiResult');
+        const bmiValue = document.getElementById('bmiValue');
+        const bmiCategory = document.getElementById('bmiCategory');
+        const bmiMessage = document.getElementById('bmiMessage');
+        const bmiAlert = document.getElementById('bmiAlert');
+
+        function calculateBMI() {
+            const height = parseFloat(heightInput.value);
+            const weight = parseFloat(weightInput.value);
+
+            if (!height || !weight) {
+                bmiResult.style.display = 'none';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('height', height);
+            formData.append('weight', weight);
+            formData.append('height_unit', heightUnit.value);
+            formData.append('weight_unit', weightUnit.value);
+
+            fetch('{% url "patients:calculate_bmi" %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    return;
+                }
+
+                bmiResult.style.display = 'block';
+                bmiValue.textContent = data.bmi;
+                bmiCategory.textContent = data.category;
+                bmiCategory.style.backgroundColor = `${data.color}20`;
+                bmiCategory.style.color = data.color;
+                bmiMessage.textContent = data.message;
+                bmiAlert.style.backgroundColor = data.bg_color;
+                bmiAlert.style.color = data.color;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                bmiResult.style.display = 'none';
+            });
+        }
+
+        // Add event listeners
+        heightInput.addEventListener('input', calculateBMI);
+        weightInput.addEventListener('input', calculateBMI);
+        heightUnit.addEventListener('change', calculateBMI);
+        weightUnit.addEventListener('change', calculateBMI);
+
+        // Add focus effects
+        [heightInput, weightInput].forEach(input => {
+            input.addEventListener('focus', () => {
+                input.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+            });
+            input.addEventListener('blur', () => {
+                input.style.borderColor = '#e0e0e0';
+            });
+        });
+
+        // Reset form when modal is hidden
+        document.getElementById('bmiCalculatorModal').addEventListener('hidden.bs.modal', function () {
+            bmiForm.reset();
+            bmiResult.style.display = 'none';
+        });
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss alerts
+        const alerts = document.querySelectorAll('.alert');
+        const alertsContainer = document.getElementById('alerts-container');
+        const dismissDuration = 5000; // 5 seconds
+
+        // Adjust navbar padding if exists
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            alertsContainer.style.paddingTop = (navbar.offsetHeight + 16) + 'px';
+        }
+
+        alerts.forEach(alert => {
+            // Add progress bar
+            const progressBar = document.createElement('div');
+            progressBar.className = 'alert-progress';
+            alert.appendChild(progressBar);
+
+            // Animate progress bar
+            progressBar.style.width = '100%';
+            progressBar.style.transition = `width ${dismissDuration}ms linear`;
+            setTimeout(() => {
+                progressBar.style.width = '0%';
+            }, 50);
+
+            // Set timeout to dismiss alert
+            const timeout = setTimeout(() => {
+                dismissAlert(alert);
+            }, dismissDuration);
+
+            // Clear timeout if user interacts with alert
+            alert.addEventListener('mouseenter', () => {
+                clearTimeout(timeout);
+                progressBar.style.transition = 'none';
+                progressBar.style.width = '100%';
+            });
+
+            // Resume timeout when user leaves alert
+            alert.addEventListener('mouseleave', () => {
+                progressBar.style.transition = `width ${dismissDuration}ms linear`;
+                progressBar.style.width = '0%';
+                setTimeout(() => {
+                    dismissAlert(alert);
+                }, dismissDuration);
+            });
+
+            // Handle manual dismiss
+            const closeButton = alert.querySelector('.btn-close');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    clearTimeout(timeout);
+                    dismissAlert(alert);
+                });
+            }
+        });
+
+        function dismissAlert(alert) {
+            alert.classList.add('hiding');
+            setTimeout(() => {
+                alert.remove();
+                // Remove container if no alerts left
+                if (alertsContainer && alertsContainer.children.length === 0) {
+                    alertsContainer.closest('.alerts-wrapper').remove();
+                }
+            }, 300);
+        }
+    });
+    </script>
+
+    {% if user.is_authenticated %}
+    <!-- Session Timeout Modal -->
+    <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Session Timeout Warning</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Your session will expire in <span id="sessionCountdown">60</span> seconds due to inactivity.</p>
+                    <p>Click "Stay Connected" to continue your session.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Logout</button>
+                    <button type="button" class="btn btn-primary" id="extendSession">Stay Connected</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Session timeout handling
+        const SESSION_TIMEOUT = {{ request.session.SESSION_COOKIE_AGE|default:1800 }}; // 30 minutes in seconds
+        const WARNING_BEFORE_TIMEOUT = 60; // Show warning 60 seconds before timeout
+        let sessionTimeoutModal;
+        let countdownInterval;
+        let timeoutTimer;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            sessionTimeoutModal = new bootstrap.Modal(document.getElementById('sessionTimeoutModal'));
+            
+            // Initialize session timeout
+            resetSessionTimeout();
+
+            // Reset timeout on user activity
+            ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+                document.addEventListener(event, debounce(resetSessionTimeout, 1000));
+            });
+
+            // Handle "Stay Connected" button
+            document.getElementById('extendSession').addEventListener('click', function() {
+                fetch('{% url "accounts:extend_session" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        sessionTimeoutModal.hide();
+                        resetSessionTimeout();
+                    }
+                });
+            });
+
+            // Handle modal dismiss (logout)
+            document.getElementById('sessionTimeoutModal').addEventListener('hidden.bs.modal', function (event) {
+                if (!event.clickEvent) return; // Only handle when modal is dismissed by user
+                
+                const button = event.clickEvent.target;
+                if (button.classList.contains('btn-secondary')) {
+                    window.location.href = '{% url "accounts:logout" %}';
+                }
+            });
+        });
+
+        function resetSessionTimeout() {
+            clearTimeout(timeoutTimer);
+            clearInterval(countdownInterval);
+            
+            // Set timeout for showing warning
+            timeoutTimer = setTimeout(showTimeoutWarning, (SESSION_TIMEOUT - WARNING_BEFORE_TIMEOUT) * 1000);
+        }
+
+        function showTimeoutWarning() {
+            let secondsLeft = WARNING_BEFORE_TIMEOUT;
+            const countdownElement = document.getElementById('sessionCountdown');
+            
+            sessionTimeoutModal.show();
+            
+            countdownInterval = setInterval(() => {
+                secondsLeft--;
+                countdownElement.textContent = secondsLeft;
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = '{% url "accounts:logout" %}';
+                }
+            }, 1000);
+        }
+
+        // Debounce function to limit the rate at which resetSessionTimeout is called
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+    {% endif %}
+
+    <script>
+    // Initialize Flatpickr with default configuration
+    function initializeDatePicker(element, options = {}) {
+        const defaultConfig = {
+            dateFormat: 'Y-m-d',
+            allowInput: true,
+            disableMobile: false,
+            locale: {
+                firstDayOfWeek: 1
+            },
+            onChange: function(selectedDates, dateStr) {
+                element.value = dateStr;
+            }
+        };
+
+        const config = { ...defaultConfig, ...options };
+        return flatpickr(element, config);
+    }
+
+    function initializeTimePicker(element, options = {}) {
+        const defaultConfig = {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: 'h:i K', // 12-hour format with AM/PM
+            time_24hr: false, // Set to false for 12-hour format
+            minuteIncrement: 15,
+            onChange: function(selectedDates, timeStr) {
+                element.value = timeStr;
+            }
+        };
+
+        const config = { ...defaultConfig, ...options };
+        return flatpickr(element, config);
+    }
+
+    function initializeDateTimePicker(element, options = {}) {
+        const defaultConfig = {
+            enableTime: true,
+            dateFormat: 'Y-m-d h:i K', // 12-hour format with AM/PM
+            time_24hr: false, // Set to false for 12-hour format
+            minuteIncrement: 15,
+            onChange: function(selectedDates, dateStr) {
+                element.value = dateStr;
+            }
+        };
+
+        const config = { ...defaultConfig, ...options };
+        return flatpickr(element, config);
+    }
+
+    // Initialize all date inputs on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize date inputs
+        document.querySelectorAll('input[type="date"]').forEach(input => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'date-input-group';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+            
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-calendar calendar-icon';
+            wrapper.appendChild(icon);
+            
+            input.type = 'text';
+            input.placeholder = 'Select date';
+            initializeDatePicker(input);
+        });
+
+        // Initialize time inputs
+        document.querySelectorAll('input[type="time"]').forEach(input => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'date-input-group';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+            
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-clock calendar-icon';
+            wrapper.appendChild(icon);
+            
+            input.type = 'text';
+            input.placeholder = 'Select time';
+            initializeTimePicker(input);
+        });
+
+        // Initialize datetime inputs
+        document.querySelectorAll('input[type="datetime-local"]').forEach(input => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'date-input-group';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+            
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-calendar-alt calendar-icon';
+            wrapper.appendChild(icon);
+            
+            input.type = 'text';
+            input.placeholder = 'Select date and time';
+            initializeDateTimePicker(input);
+        });
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-notification');
+        
+        toasts.forEach(toast => {
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 5000);
+        });
+    });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

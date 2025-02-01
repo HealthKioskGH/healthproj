@@ -1,0 +1,708 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if user.is_patient %}Patient{% else %}Doctor{% endif %} Appointments
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="mb-0 text-white">My Appointments</h1>
+                <p class="mb-0 text-white-50">Manage your medical appointments</p>
+            </div>
+            <div class="col-auto">
+                <div class="header-actions">
+                    {% if user.is_patient %}
+                    <button class="btn btn-modern light" data-bs-toggle="modal" data-bs-target="#bookAppointmentModal">
+                        <i class="fas fa-plus"></i>Book Appointment
+                    </button>
+                    {% else %}
+                    <a href="{% url 'doctors:dashboard' %}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Dashboard</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="filter-group">
+                <a href="?filter=upcoming" class="filter-btn {% if current_filter == 'upcoming' %}active{% endif %}">
+                    <i class="fas fa-calendar-alt"></i>Upcoming
+                </a>
+                <a href="?filter=past" class="filter-btn {% if current_filter == 'past' %}active{% endif %}">
+                    <i class="fas fa-history"></i>Past
+                </a>
+                <a href="?filter=completed" class="filter-btn {% if current_filter == 'completed' %}active{% endif %}">
+                    <i class="fas fa-check-circle"></i>Completed
+                </a>
+                <a href="?filter=cancelled" class="filter-btn {% if current_filter == 'cancelled' %}active{% endif %}">
+                    <i class="fas fa-times-circle"></i>Cancelled
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>My Appointments
+                        </h5>
+                        <div class="d-flex align-items-center">
+                            <div class="input-group me-3" style="width: 300px;">
+                                <span class="input-group-text bg-transparent border-end-0">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="appointmentSearch" 
+                                       placeholder="Search appointments...">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="appointment-list">
+                        {% for appointment in appointments %}
+                            <div class="appointment-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            {% if user.is_patient %}
+                                                <img src="{{ appointment.doctor.profile_picture_url }}" 
+                                                     alt="Dr. {{ appointment.doctor.get_full_name }}"
+                                                     class="rounded-circle profile-picture"
+                                                     onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                                                     style="width: 50px; height: 50px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                            {% else %}
+                                                <img src="{{ appointment.patient.profile_picture_url }}" 
+                                                     alt="{{ appointment.patient.get_full_name }}"
+                                                     class="rounded-circle profile-picture"
+                                                     onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                                                     style="width: 50px; height: 50px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            {% if user.is_patient %}
+                                                <h6 class="mb-1">Dr. {{ appointment.doctor.get_full_name }}</h6>
+                                                <div class="text-muted small">{{ appointment.doctor.specialization }}</div>
+                                            {% else %}
+                                                <h6 class="mb-1">{{ appointment.patient.get_full_name }}</h6>
+                                                <div class="text-muted small">Patient ID: {{ appointment.patient.id }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-4">
+                                            <div class="text-muted small mb-1">
+                                                <i class="fas fa-calendar me-1"></i>Date & Time
+                                            </div>
+                                            <div>{{ appointment.appointment_date|date:"M d, Y" }}</div>
+                                            <div class="text-muted small">{{ appointment.appointment_date|time:"H:i" }}</div>
+                                        </div>
+                                        <div>
+                                            <span class="status-badge {{ appointment.status }}">
+                                                {{ appointment.status|title }}
+                                            </span>
+                                            {% if appointment.status == 'scheduled' %}
+                                                <div class="mt-2 text-end">
+                                                    <button class="btn btn-modern light btn-sm me-1" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#rescheduleModal{{ appointment.id }}"
+                                                            title="Reschedule"
+                                                            {% if current_filter == 'past' %}disabled{% endif %}>
+                                                        <i class="fas fa-calendar-alt"></i>
+                                                    </button>
+                                                    {% if current_filter != 'past' %}
+                                                    <button class="btn btn-modern danger btn-sm me-1"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#cancelModal{{ appointment.id }}"
+                                                            title="Cancel">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    {% endif %}
+                                                    {% if user.is_doctor %}
+                                                        <button class="btn btn-modern primary btn-sm" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#completeModal{{ appointment.id }}"
+                                                                title="Complete">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if appointment.reason %}
+                                    <div class="appointment-reason mt-3">
+                                        <i class="fas fa-comment-medical me-2"></i>{{ appointment.reason|truncatechars:100 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No appointments found</h5>
+                                <p class="text-muted">Schedule your first appointment now</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Notes Modals -->
+{% for appointment in appointments %}
+{% if appointment.status == 'completed' and appointment.notes %}
+<div class="modal fade" id="viewNotesModal{{ appointment.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-medical-alt me-2"></i>Doctor's Notes
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="text-muted small mb-3">
+                        <i class="fas fa-user-md me-1"></i>Doctor: Dr. {{ appointment.doctor.get_full_name }}<br>
+                        <i class="fas fa-calendar me-1"></i>Date: {{ appointment.appointment_date|date:"M d, Y" }}<br>
+                        <i class="fas fa-clock me-1"></i>Time: {{ appointment.appointment_date|time:"g:i A" }}
+                    </div>
+                    <div class="notes-content p-3 bg-light rounded">
+                        {{ appointment.notes|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-modern primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- Complete Appointment Modals -->
+{% if user.is_doctor %}
+{% for appointment in appointments %}
+{% if appointment.can_be_completed %}
+<div class="modal fade" id="completeModal{{ appointment.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Complete Appointment
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'appointments:complete' appointment.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Appointment Notes</label>
+                        <textarea class="form-control" name="notes" rows="4" 
+                                placeholder="Enter any notes about the appointment (optional)"></textarea>
+                    </div>
+                    <div class="text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>Patient: {{ appointment.patient.get_full_name }}<br>
+                        <i class="fas fa-calendar me-1"></i>Date: {{ appointment.appointment_date|date:"M d, Y" }}<br>
+                        <i class="fas fa-clock me-1"></i>Time: {{ appointment.appointment_date|time:"g:i A" }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modern light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-modern primary">
+                        <i class="fas fa-check me-2"></i>Mark as Complete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<!-- Reschedule Modals -->
+{% for appointment in appointments %}
+{% if appointment.can_be_rescheduled %}
+<div class="modal fade" id="rescheduleModal{{ appointment.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-alt me-2"></i>Reschedule Appointment
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'appointments:reschedule' appointment.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label class="form-label">New Date</label>
+                        <div class="date-input-group">
+                            <input type="date" name="new_date" class="form-control" placeholder="Select new date" required>
+                            <i class="fas fa-calendar calendar-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">New Time</label>
+                        <div class="date-input-group">
+                            <input type="time" name="new_time" class="form-control" placeholder="Select new time" required>
+                            <i class="fas fa-clock calendar-icon"></i>
+                        </div>
+                    </div>
+                    <div class="text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>Current appointment: 
+                        {{ appointment.appointment_date|date:"M d, Y" }} at {{ appointment.appointment_date|time:"g:i A" }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modern light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-modern primary">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- Cancel Appointment Modals -->
+{% for appointment in appointments %}
+{% if appointment.status == 'scheduled' and current_filter != 'past' %}
+<div class="modal fade" id="cancelModal{{ appointment.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-times-circle me-2"></i>Cancel Appointment
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'appointments:cancel' appointment.id %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Are you sure you want to cancel this appointment?</p>
+                    <div class="text-muted small">
+                        {% if user.is_patient %}
+                            <i class="fas fa-user-md me-1"></i>Doctor: Dr. {{ appointment.doctor.get_full_name }}<br>
+                        {% else %}
+                            <i class="fas fa-user me-1"></i>Patient: {{ appointment.patient.get_full_name }}<br>
+                        {% endif %}
+                        <i class="fas fa-calendar me-1"></i>Date: {{ appointment.appointment_date|date:"M d, Y" }}<br>
+                        <i class="fas fa-clock me-1"></i>Time: {{ appointment.appointment_date|time:"g:i A" }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modern light" data-bs-dismiss="modal">No, Keep It</button>
+                    <button type="submit" class="btn btn-modern danger">
+                        <i class="fas fa-times me-2"></i>Yes, Cancel Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% if user.is_patient %}
+    {% include "appointments/book_modal.html" %}
+{% endif %}
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Use the correct gradient based on user type */
+    .page-header {
+        background: {% if user.is_doctor %}linear-gradient(135deg, #00b09b 0%, #96c93d 100%){% else %}linear-gradient(135deg, #0061f2 0%, #6900f2 100%){% endif %};
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Set portal-specific variables */
+    :root {
+        {% if user.is_doctor %}
+        --primary-gradient: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+        --primary-color: #00b09b;
+        --secondary-color: #96c93d;
+        {% else %}
+        --primary-gradient: linear-gradient(135deg, #0061f2 0%, #6900f2 100%);
+        --primary-color: #0061f2;
+        --secondary-color: #6900f2;
+        {% endif %}
+    }
+
+    /* Override navbar for specific portal */
+    {% if user.is_doctor %}
+    body nav.navbar {
+        background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
+        background-image: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
+    }
+    {% endif %}
+
+    .filter-group {
+        display: inline-flex;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        gap: 0.5rem;
+    }
+
+    .filter-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        color: #6c757d;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .filter-btn i {
+        font-size: 1.1rem;
+    }
+
+    .filter-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: #2c3e50;
+    }
+
+    .filter-btn.active {
+        background: {% if user.is_patient %}#0061f2{% else %}#00b09b{% endif %};
+        color: white;
+    }
+
+    .appointment-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .appointment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .appointment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+        margin-right: 1rem;
+        background: {% if user.is_patient %}linear-gradient(135deg, #0061f2 0%, #6900f2 100%){% else %}linear-gradient(135deg, #00b09b 0%, #96c93d 100%){% endif %};
+    }
+
+    .person-info h6 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+        color: #2c3e50;
+    }
+
+    .person-info p {
+        color: #6c757d;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .appointment-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 12px;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .detail-item i {
+        font-size: 1.1rem;
+        color: {% if user.is_patient %}#0061f2{% else %}#00b09b{% endif %};
+    }
+
+    .detail-item span {
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .appointment-reason {
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+        line-height: 1.5;
+    }
+
+    .appointment-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-badge.scheduled {
+        background: rgba(0, 97, 242, 0.1);
+        color: #0061f2;
+    }
+
+    .status-badge.completed {
+        background: rgba(28, 200, 138, 0.1);
+        color: #1cc88a;
+    }
+
+    .status-badge.cancelled {
+        background: rgba(231, 74, 59, 0.1);
+        color: #e74a3b;
+    }
+
+    .status-badge.rescheduled {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+
+    .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+    }
+
+    .btn-modern.primary {
+        background: {% if user.is_patient %}linear-gradient(135deg, #0061f2 0%, #6900f2 100%){% else %}linear-gradient(135deg, #00b09b 0%, #96c93d 100%){% endif %};
+        color: white;
+    }
+
+    .btn-modern.light {
+        background: white;
+        color: #2c3e50;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-modern.danger {
+        background: #e74a3b;
+        color: white;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h4 {
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-state p {
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+
+    .detail-item.text-warning {
+        color: #ffc107;
+        grid-column: 1 / -1;
+        background: rgba(255, 193, 7, 0.05);
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .detail-item.text-warning i {
+        color: #ffc107;
+    }
+
+    .detail-item.text-danger {
+        color: #dc3545;
+        grid-column: 1 / -1;
+        background: rgba(220, 53, 69, 0.05);
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .detail-item.text-danger i {
+        color: #dc3545;
+    }
+
+    .appointment-footer .d-flex.gap-2 {
+        gap: 0.5rem !important;
+    }
+
+    .btn-back {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(-3px);
+        color: white;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 10px;
+        margin-left: 0.5rem;
+    }
+
+    .profile-picture {
+        transition: all 0.3s ease;
+    }
+
+    .profile-picture:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .appointment-item {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .appointment-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block body_class %}{% if user.is_doctor %}doctor-portal{% else %}patient-portal{% endif %}{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Format dates in appointment cards
+    document.querySelectorAll('.appointment-date').forEach(element => {
+        const date = new Date(element.getAttribute('data-date'));
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        };
+        element.textContent = date.toLocaleString('en-US', options);
+    });
+
+    // Initialize date picker for new date input
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        flatpickr(input, {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            onChange: function(selectedDates, dateStr) {
+                input.value = dateStr;
+            }
+        });
+    });
+
+    // Initialize time picker for new time input
+    const timeInputs = document.querySelectorAll('input[type="time"]');
+    timeInputs.forEach(input => {
+        flatpickr(input, {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "h:i K",
+            time_24hr: false,
+            minuteIncrement: 15,
+            minTime: "09:00",
+            maxTime: "17:00",
+            onChange: function(selectedDates, timeStr) {
+                input.value = timeStr;
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

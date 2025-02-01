@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Find Store{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #0061f2 0%, #6900f2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .store-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        background: white;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .store-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .store-image {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .store-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        background: rgba(255,255,255,0.9);
+        color: #1cc88a;
+        font-weight: 500;
+    }
+
+    .store-info {
+        padding: 1.5rem;
+    }
+
+    .store-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+
+    .store-address {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .store-hours {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .store-contact {
+        display: flex;
+        align-items: center;
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .store-contact i {
+        width: 20px;
+        margin-right: 0.5rem;
+        color: #0061f2;
+    }
+
+    .search-box {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    .search-input {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e0e0e0;
+    }
+
+    .search-input:focus {
+        border-color: #6900f2;
+        box-shadow: 0 0 0 0.2rem rgba(105, 0, 242, 0.15);
+    }
+
+    .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .store-rating {
+        color: #f6c23e;
+        margin-bottom: 1rem;
+    }
+
+    .store-services {
+        margin-top: 1rem;
+    }
+
+    .service-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        background: rgba(0,97,242,0.1);
+        color: #0061f2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="mb-0">Find a Store</h1>
+                <p class="mb-0 text-white-50">Locate nearby pharmacies and medical stores</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Search Box -->
+    <div class="search-box">
+        <form method="get">
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control search-input" 
+                               placeholder="Search by name or location" 
+                               name="q" 
+                               value="{{ request.GET.q }}">
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                        <input type="number" class="form-control search-input" 
+                               placeholder="Distance (km)" 
+                               name="distance" 
+                               value="{{ request.GET.distance }}">
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <select class="form-select search-input" name="service">
+                        <option value="">All Services</option>
+                        <option value="prescription">Prescription Services</option>
+                        <option value="24hours">24/7 Service</option>
+                        <option value="delivery">Home Delivery</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-modern w-100">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Store Listings -->
+    <div class="row">
+        {% if stores %}
+            {% for store in stores %}
+                <div class="col-lg-4">
+                    <div class="store-card">
+                        <div class="position-relative">
+                            <img src="{{ store.image_url }}" alt="{{ store.name }}" class="store-image">
+                            {% if store.is_open %}
+                                <div class="store-badge">
+                                    <i class="fas fa-clock me-1"></i>Open Now
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="store-info">
+                            <h3 class="store-name">{{ store.name }}</h3>
+                            <div class="store-rating">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= store.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-muted ms-2">({{ store.review_count }} reviews)</span>
+                            </div>
+                            <div class="store-address">
+                                <i class="fas fa-map-marker-alt me-2"></i>{{ store.address }}
+                            </div>
+                            <div class="store-hours">
+                                <i class="fas fa-clock me-2"></i>{{ store.hours }}
+                            </div>
+                            <div class="store-contact">
+                                <i class="fas fa-phone"></i>{{ store.phone }}
+                            </div>
+                            <div class="store-contact">
+                                <i class="fas fa-envelope"></i>{{ store.email }}
+                            </div>
+                            <div class="store-services">
+                                {% for service in store.services %}
+                                    <span class="service-badge">{{ service }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ store.directions_url }}" target="_blank" class="btn btn-outline-primary btn-modern me-2">
+                                    <i class="fas fa-directions me-2"></i>Get Directions
+                                </a>
+                                <a href="{{ store.website }}" target="_blank" class="btn btn-outline-secondary btn-modern">
+                                    <i class="fas fa-globe me-2"></i>Visit Website
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-store fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No stores found</h5>
+                    <p class="text-muted">Try adjusting your search criteria</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

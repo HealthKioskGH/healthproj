@@ -1,0 +1,769 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #0061f2 0%, #6900f2 100%);
+        --success-gradient: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+        --warning-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        --danger-gradient: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
+        --primary-color: #0061f2;
+        --success-color: #1cc88a;
+        --warning-color: #f6d365;
+        --danger-color: #e74a3b;
+        --light-bg: #f8f9fa;
+    }
+
+    .stat-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        background: white;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+
+    .health-metric {
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+    }
+
+    .health-metric:hover {
+        background: #e9ecef;
+    }
+
+    .appointment-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .appointment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .appointment-card.scheduled {
+        border-left-color: var(--primary-color);
+    }
+
+    .appointment-card.completed {
+        border-left-color: var(--success-color);
+    }
+
+    .appointment-card.cancelled {
+        border-left-color: var(--danger-color);
+    }
+
+    .appointment-time {
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    .appointment-doctor {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .appointment-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .appointment-reason {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #eee;
+    }
+
+    .appointment-status {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .appointment-status.scheduled {
+        background-color: rgba(0, 97, 242, 0.1);
+        color: var(--primary-color);
+    }
+
+    .appointment-status.completed {
+        background-color: rgba(28, 200, 138, 0.1);
+        color: var(--success-color);
+    }
+
+    .appointment-status.cancelled {
+        background-color: rgba(231, 74, 59, 0.1);
+        color: var(--danger-color);
+    }
+
+    .symptom-badge {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        display: inline-block;
+    }
+
+    .btn-modern {
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-modern.primary {
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .empty-appointments {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .empty-appointments i {
+        font-size: 3rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-appointments p {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .profile-pic-container {
+        position: relative;
+    }
+
+    .profile-pic {
+        border: 3px solid #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .profile-pic-overlay {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: var(--primary-gradient);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid #fff;
+    }
+
+    .profile-pic-overlay:hover {
+        transform: scale(1.1);
+    }
+
+    .profile-pic-container:hover .profile-pic {
+        filter: brightness(0.9);
+    }
+
+    .profile-picture {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .profile-picture.large {
+        width: 60px;
+        height: 60px;
+    }
+
+    .profile-picture:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.25rem;
+    }
+
+    .card-header .btn-modern.btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+    }
+
+    .card-header h5 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .symptom-card {
+        padding: 15px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .symptom-card:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+    
+    .severity-indicator {
+        margin-top: 5px;
+    }
+    
+    .severity-indicator .badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center">
+                    <div class="profile-pic-container me-4">
+                        <div class="position-relative">
+                            <img src="{{ user.profile_picture_url }}" 
+                                 alt="Profile Picture" 
+                                 class="rounded-circle profile-pic"
+                                 id="currentProfilePic"
+                                 onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                            <div class="profile-pic-overlay" onclick="document.getElementById('profilePicInput').click();">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <form id="profilePicForm" style="display: none;">
+                            {% csrf_token %}
+                            <input type="file" 
+                                   id="profilePicInput" 
+                                   name="profile_picture" 
+                                   accept="image/*"
+                                   onchange="uploadProfilePic(this)">
+                        </form>
+                    </div>
+                    <div>
+                        <h4 class="mb-0">Welcome, {{ user.get_full_name }}</h4>
+                        <p class="text-muted mb-0">Your Health Dashboard</p>
+                    </div>
+                    <div class="ms-auto">
+                        <a href="{% url 'patients:doctors' %}" class="btn btn-modern primary me-2">
+                            <i class="fas fa-user-md me-2"></i>Find a Doctor
+                        </a>
+                        <a href="{% url 'appointments:list' %}" class="btn btn-modern primary">
+                            <i class="fas fa-calendar-alt me-2"></i>My Appointments
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <!-- Latest Vitals Summary -->
+        {% if latest_vitals %}
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-success text-white me-3">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Pulse Rate</h6>
+                            <h4 class="mb-0">{{ latest_vitals.pulse_rate }} <small>bpm</small></h4>
+                        </div>
+                    </div>
+                    <div class="text-muted small">
+                        Last updated: {{ latest_vitals.recorded_at|date:"M d, Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-warning text-white me-3">
+                            <i class="fas fa-temperature-high"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Temperature</h6>
+                            <h4 class="mb-0">{{ latest_vitals.temperature }} <small>°C</small></h4>
+                        </div>
+                    </div>
+                    <div class="text-muted small">
+                        Last updated: {{ latest_vitals.recorded_at|date:"M d, Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-danger text-white me-3">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Blood Pressure</h6>
+                            <h4 class="mb-0">{{ latest_vitals.blood_pressure }}</h4>
+                        </div>
+                    </div>
+                    <div class="text-muted small">
+                        Last updated: {{ latest_vitals.recorded_at|date:"M d, Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Charts and Details -->
+    <div class="row">
+        <!-- Vitals Chart -->
+        <div class="col-xl-8 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-heartbeat me-2"></i>Vital Signs History
+                    </h6>
+                    <a href="{% url 'patients:vitals' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i>Record New
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="vitalsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Appointments -->
+        <div class="col-xl-4 mb-4">
+            <div class="stat-card">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Upcoming Appointments
+                    </h5>
+                    <a href="{% url 'appointments:list' %}" class="btn btn-modern primary">
+                        <i class="fas fa-plus me-2"></i>Book New
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                        {% for appointment in upcoming_appointments %}
+                            <div class="appointment-card {{ appointment.status }}">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="me-3">
+                                                <img src="{{ appointment.doctor.profile_picture_url }}" 
+                                                     alt="Dr. {{ appointment.doctor.get_full_name }}"
+                                                     class="rounded-circle profile-picture"
+                                                     onerror="this.onerror=null; this.src='/static/images/default-avatar.png';"
+                                                     style="width: 50px; height: 50px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">Dr. {{ appointment.doctor.get_full_name }}</h6>
+                                                <div class="text-muted small">{{ appointment.doctor.specialization }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="appointment-time mb-2">
+                                            <i class="far fa-clock me-2"></i>{{ appointment.appointment_date|time:"g:i A" }}
+                                        </div>
+                                        <div class="appointment-date">
+                                            <i class="far fa-calendar me-2"></i>{{ appointment.appointment_date|date:"l, F j, Y" }}
+                                        </div>
+                                    </div>
+                                    <span class="appointment-status {{ appointment.status }}">
+                                        {{ appointment.status|title }}
+                                    </span>
+                                </div>
+                                {% if appointment.reason %}
+                                    <div class="appointment-reason">
+                                        <i class="fas fa-comment-medical me-2"></i>{{ appointment.reason|truncatechars:100 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-appointments">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No upcoming appointments</p>
+                            <a href="{% url 'appointments:list' %}" class="btn btn-modern primary">
+                                <i class="fas fa-plus me-2"></i>Schedule Now
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Health Profile -->
+        <div class="col-xl-6 mb-4">
+            <div class="stat-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-circle me-2"></i>Health Profile
+                    </h5>
+                    <a href="{% url 'patients:profile-update' %}" class="btn btn-modern primary btn-sm">
+                        <i class="fas fa-edit me-2"></i>Update Profile
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="health-metric">
+                                <div class="text-muted small mb-1">Blood Type</div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-tint me-2 text-primary"></i>
+                                    <strong>{{ user.healthprofile.blood_type|default:"Not set" }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="health-metric">
+                                <div class="text-muted small mb-1">Allergies</div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-allergies me-2 text-primary"></i>
+                                    <strong>{{ user.healthprofile.allergies|default:"None reported"|truncatechars:30 }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="health-metric">
+                                <div class="text-muted small mb-1">Chronic Conditions</div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-heartbeat me-2 text-primary"></i>
+                                    <strong>{{ user.healthprofile.medical_conditions|default:"None reported"|truncatechars:30 }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="health-metric">
+                                <div class="text-muted small mb-1">Emergency Contact</div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-phone-alt me-2 text-primary"></i>
+                                    <div>
+                                        <strong>{{ user.healthprofile.emergency_contact_name|default:"Not set" }}</strong>
+                                        {% if user.healthprofile.emergency_contact_phone %}
+                                            <br>
+                                            <small class="text-muted">{{ user.healthprofile.emergency_contact_phone }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if user.healthprofile.medications %}
+                        <div class="col-12">
+                            <div class="health-metric">
+                                <div class="text-muted small mb-1">Current Medications</div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-pills me-2 text-primary"></i>
+                                    <strong>{{ user.healthprofile.current_medications|truncatechars:100 }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Symptoms -->
+        <div class="col-xl-6 mb-4">
+            <div class="stat-card">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-notes-medical me-2"></i>Recent Symptoms
+                    </h5>
+                    <a href="{% url 'patients:symptoms' %}" class="btn btn-modern primary btn-sm">
+                        <i class="fas fa-plus me-2"></i>Add Symptom
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_symptoms %}
+                        {% for symptom in recent_symptoms %}
+                            <div class="symptom-card mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ symptom.symptom_name }}</h6>
+                                        <p class="mb-1 text-muted small">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            Onset: {{ symptom.onset_date|date:"M d, Y" }}
+                                        </p>
+                                        <p class="mb-2 small">{{ symptom.description|truncatechars:100 }}</p>
+                                        {% if symptom.severity %}
+                                            <div class="severity-indicator">
+                                                <span class="badge {% if symptom.severity <= 3 %}bg-success{% elif symptom.severity <= 6 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    Severity: {{ symptom.severity }}/10
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ symptom.recorded_at|timesince }} ago
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if recent_symptoms.count >= 5 %}
+                            <div class="text-center mt-3">
+                                <a href="{% url 'patients:symptoms' %}" class="btn btn-link text-primary">
+                                    View All Symptoms
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-notes-medical fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No symptoms recorded yet</p>
+                            <a href="{% url 'patients:symptoms' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus me-1"></i>Record Symptoms
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('vitalsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ dates|safe }},
+            datasets: [
+                {
+                    label: 'Systolic BP',
+                    data: {{ systolic_bp|safe }},
+                    borderColor: '#e74a3b',
+                    backgroundColor: 'rgba(231, 74, 59, 0.1)',
+                    tension: 0.3,
+                    yAxisID: 'y-bp'
+                },
+                {
+                    label: 'Diastolic BP',
+                    data: {{ diastolic_bp|safe }},
+                    borderColor: '#1cc88a',
+                    backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                    tension: 0.3,
+                    yAxisID: 'y-bp'
+                },
+                {
+                    label: 'Pulse Rate',
+                    data: {{ pulse_rates|safe }},
+                    borderColor: '#36b9cc',
+                    backgroundColor: 'rgba(54, 185, 204, 0.1)',
+                    tension: 0.3,
+                    yAxisID: 'y-pulse'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y;
+                                if (label.includes('Pulse')) {
+                                    label += ' bpm';
+                                } else if (label.includes('BP')) {
+                                    label += ' mmHg';
+                                }
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                'y-bp': {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Blood Pressure (mmHg)'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                },
+                'y-pulse': {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Pulse Rate (bpm)'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+<script>
+function uploadProfilePic(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const maxSize = {{ max_upload_size|default:5242880 }}; // 5MB default
+
+        // Check file size
+        if (file.size > maxSize) {
+            alert('File is too large. Maximum size is 5MB.');
+            return;
+        }
+
+        // Create FormData
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('currentProfilePic').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+
+        // Upload to server
+        fetch('{% url "accounts:update_profile_picture" %}', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the image with the new URL from server
+                document.getElementById('currentProfilePic').src = data.url;
+                
+                // Show success message
+                const toast = new bootstrap.Toast(document.getElementById('successToast'));
+                document.querySelector('#successToast .toast-body').textContent = 'Profile picture updated successfully!';
+                toast.show();
+            } else {
+                throw new Error(data.error || 'Upload failed');
+            }
+        })
+        .catch(error => {
+            // Show error message
+            alert('Error uploading profile picture: ' + error.message);
+        });
+    }
+}
+</script>
+
+<!-- Success Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="fas fa-check-circle text-success me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,18 @@
+<div class="vital-signs-container">
+    {% for vital in vital_signs %}
+    <div class="vital-sign-card">
+        <h3>Vital Signs - {{ vital.recorded_at|date:"F d, Y H:i" }}</h3>
+        <div class="vital-details">
+            <p><strong>Height:</strong> {{ vital.height }} m</p>
+            <p><strong>Weight:</strong> {{ vital.weight }} kg</p>
+            <p><strong>Blood Pressure:</strong> {{ vital.blood_pressure }}</p>
+            <p><strong>Temperature:</strong> {{ vital.temperature }}°C</p>
+            <p><strong>Pulse Rate:</strong> {{ vital.pulse_rate }} bpm</p>
+            <p><strong>BMI:</strong> {{ vital.bmi|floatformat:2 }}</p>
+            <p><strong>BMI Status:</strong> {{ vital.bmi_status }}</p>
+        </div>
+    </div>
+    {% empty %}
+    <p>No vital signs recorded yet.</p>
+    {% endfor %}
+</div> 

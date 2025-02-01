@@ -1,0 +1,75 @@
+{% load account %}
+{% load i18n %}
+{% autoescape off %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #00A4B4 0%, #6DD5ED 100%);
+            color: white;
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 20px -20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00A4B4 0%, #6DD5ED 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Verify Your Email Address</h1>
+        </div>
+        
+        <p>Hello {{ user.username }},</p>
+        
+        <p>Thank you for registering with Health Kiosk. To complete your registration and activate your account, please verify your email address by clicking the button below:</p>
+        
+        <p style="text-align: center;">
+            <a href="{{ activate_url }}" class="button">
+                Verify Email Address
+            </a>
+        </p>
+        
+        <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+        <p>{{ activate_url }}</p>
+        
+        <p>This verification link will expire in {{ expiry_days }} days.</p>
+        
+        <div class="footer">
+            <p>Thanks,<br>The Health Kiosk Team</p>
+            <p>If you didn't create this account, you can safely ignore this email.</p>
+        </div>
+    </div>
+</body>
+</html>
+{% endautoescape %} 

@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+{% load patient_tags %}
+
+{% block title %}Vital Signs{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #0061f2 0%, #6900f2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e0e0e0;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #6900f2;
+        box-shadow: 0 0 0 0.2rem rgba(105, 0, 242, 0.25);
+    }
+    .vital-history-card {
+        border-left: 4px solid;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 10px;
+        background: white;
+        transition: transform 0.2s;
+    }
+    .vital-history-card:hover {
+        transform: translateY(-3px);
+    }
+    .vital-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="mb-0">Vital Signs</h1>
+                <p class="mb-0 text-white-50">Monitor your health metrics</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Record New Vitals -->
+        <div class="col-xl-4 mb-4">
+            <div class="card stat-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Record New Vitals
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Temperature (°C)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-temperature-high"></i></span>
+                                    <input type="number" step="0.1" class="form-control" name="temperature" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pulse Rate (bpm)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-heartbeat"></i></span>
+                                    <input type="number" class="form-control" name="pulse_rate" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Blood Pressure (e.g., 120/80)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-tachometer-alt"></i></span>
+                                    <input type="text" class="form-control" name="blood_pressure" 
+                                           pattern="\d{2,3}\/\d{2,3}" title="Format: 120/80" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Weight (kg)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-weight"></i></span>
+                                    <input type="number" step="0.1" class="form-control" name="weight" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Height (cm)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-ruler-vertical"></i></span>
+                                    <input type="number" 
+                                           step="1" 
+                                           class="form-control" 
+                                           name="height" 
+                                           required 
+                                           min="50" 
+                                           max="300"
+                                           title="Enter height in centimeters (e.g., 175)">
+                                </div>
+                                <small class="text-muted">Enter height in centimeters (e.g., 175)</small>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-2"></i>Record Vitals
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vitals History -->
+        <div class="col-xl-8 mb-4">
+            <div class="card stat-card">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Vitals History
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if vitals_history %}
+                        <!-- Blood Pressure and Pulse Rate Chart -->
+                        <div class="chart-container">
+                            <canvas id="vitalsChart"></canvas>
+                        </div>
+
+                        <!-- Weight and Temperature Chart -->
+                        <div class="chart-container">
+                            <canvas id="weightTempChart"></canvas>
+                        </div>
+
+                        <!-- History Cards -->
+                        {% for vital in vitals_history %}
+                            <div class="vital-history-card" style="border-left-color: #4e73df;">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3">
+                                        <div class="text-muted small">Recorded</div>
+                                        <strong>{{ vital.recorded_at|date:"M d, Y H:i" }}</strong>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-2">
+                                                <span class="vital-badge bg-primary bg-opacity-10 text-primary">
+                                                    <i class="fas fa-temperature-high me-1"></i>{{ vital.temperature }}°C
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4 mb-2">
+                                                <span class="vital-badge bg-success bg-opacity-10 text-success">
+                                                    <i class="fas fa-heartbeat me-1"></i>{{ vital.pulse_rate }} bpm
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4 mb-2">
+                                                <span class="vital-badge bg-danger bg-opacity-10 text-danger">
+                                                    <i class="fas fa-tachometer-alt me-1"></i>{{ vital.blood_pressure }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-4">
+                                                <span class="vital-badge bg-warning bg-opacity-10 text-warning">
+                                                    <i class="fas fa-weight me-1"></i>{{ vital.weight }} kg
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="vital-badge bg-info bg-opacity-10 text-info">
+                                                    <i class="fas fa-ruler-vertical me-1"></i>{{ vital.height|multiply:100|floatformat:0 }} cm
+                                                </span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="vital-badge {% if vital.bmi < 18.5 %}bg-warning{% elif vital.bmi < 25 %}bg-success{% elif vital.bmi < 30 %}bg-warning{% else %}bg-danger{% endif %} bg-opacity-10 text-{% if vital.bmi < 18.5 %}warning{% elif vital.bmi < 25 %}success{% elif vital.bmi < 30 %}warning{% else %}danger{% endif %}">
+                                                    <i class="fas fa-calculator me-1"></i>BMI: {{ vital.bmi|floatformat:1 }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-notes-medical fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No vital signs recorded yet</h5>
+                            <p class="text-muted">Start recording your vital signs to track your health</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if vitals_history %}
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            size: 12,
+                            family: "'Poppins', sans-serif"
+                        }
+                    }
+                }
+            },
+            elements: {
+                line: {
+                    tension: 0.4
+                },
+                point: {
+                    radius: 4,
+                    hitRadius: 10,
+                    hoverRadius: 6
+                }
+            }
+        };
+
+        // First Chart - Blood Pressure and Pulse Rate
+        const ctx = document.getElementById('vitalsChart').getContext('2d');
+        const dates = [{% for vital in vitals_history reversed %}'{{ vital.recorded_at|date:"M d" }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+        const pulseRates = [{% for vital in vitals_history reversed %}{{ vital.pulse_rate }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+        const bloodPressures = [{% for vital in vitals_history reversed %}'{{ vital.blood_pressure }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+        
+        // Extract systolic and diastolic values
+        const systolicValues = bloodPressures.map(bp => parseInt(bp.split('/')[0]));
+        const diastolicValues = bloodPressures.map(bp => parseInt(bp.split('/')[1]));
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Pulse Rate',
+                    data: pulseRates,
+                    borderColor: '#4e73df',
+                    backgroundColor: '#4e73df20',
+                    borderWidth: 2,
+                    fill: true,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Systolic BP',
+                    data: systolicValues,
+                    borderColor: '#e74a3b',
+                    backgroundColor: '#e74a3b20',
+                    borderWidth: 2,
+                    fill: true,
+                    yAxisID: 'bloodPressure'
+                }, {
+                    label: 'Diastolic BP',
+                    data: diastolicValues,
+                    borderColor: '#f6c23e',
+                    backgroundColor: '#f6c23e20',
+                    borderWidth: 2,
+                    fill: true,
+                    yAxisID: 'bloodPressure'
+                }]
+            },
+            options: {
+                ...commonOptions,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Pulse Rate (bpm)',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            drawBorder: false,
+                            color: '#e9ecef'
+                        },
+                        ticks: {
+                            padding: 10
+                        }
+                    },
+                    bloodPressure: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Blood Pressure (mmHg)',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            drawBorder: false,
+                            display: false
+                        },
+                        ticks: {
+                            padding: 10
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            padding: 10
+                        }
+                    }
+                }
+            }
+        });
+
+        // Second Chart - Weight and Temperature
+        const ctx2 = document.getElementById('weightTempChart').getContext('2d');
+        const weights = [{% for vital in vitals_history reversed %}{{ vital.weight }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+        const temperatures = [{% for vital in vitals_history reversed %}{{ vital.temperature }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Weight',
+                    data: weights,
+                    borderColor: '#1cc88a',
+                    backgroundColor: '#1cc88a20',
+                    borderWidth: 2,
+                    fill: true,
+                    yAxisID: 'weight'
+                }, {
+                    label: 'Temperature',
+                    data: temperatures,
+                    borderColor: '#f6c23e',
+                    backgroundColor: '#f6c23e20',
+                    borderWidth: 2,
+                    fill: true,
+                    yAxisID: 'temperature'
+                }]
+            },
+            options: {
+                ...commonOptions,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    weight: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Weight (kg)',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            drawBorder: false,
+                            color: '#e9ecef'
+                        },
+                        ticks: {
+                            padding: 10
+                        }
+                    },
+                    temperature: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Temperature (°C)',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            drawBorder: false,
+                            display: false
+                        },
+                        ticks: {
+                            padding: 10
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            padding: 10
+                        }
+                    }
+                }
+            }
+        });
+    {% endif %}
+});
+</script>
+{% endblock %} 

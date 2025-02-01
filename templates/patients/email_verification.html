@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Verify Your Email{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00A4B4 0%, #6DD5ED 100%);
+        --primary-color: #00A4B4;
+        --secondary-color: #6DD5ED;
+    }
+
+    .verification-card {
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .verification-header {
+        background: var(--primary-gradient);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        color: white;
+    }
+
+    .verification-header .logo {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        backdrop-filter: blur(5px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .verification-body {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 1rem;
+        background: var(--primary-gradient);
+        box-shadow: 0 4px 15px rgba(0, 164, 180, 0.2);
+        transition: all 0.3s ease;
+        color: white;
+        text-decoration: none;
+        margin-top: 1.5rem;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 164, 180, 0.3);
+    }
+
+    .page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 2rem;
+    }
+
+    .success-checkmark {
+        color: #4ade80;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .error-mark {
+        color: #ef4444;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="verification-card">
+        <div class="verification-header">
+            <div class="logo">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h1>Verify Your Email</h1>
+            <p>One last step to complete your registration</p>
+        </div>
+
+        <div class="verification-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <p>We need to verify your email address: <strong>{{ email }}</strong></p>
+            
+            <p>Click the button below to receive a verification link:</p>
+
+            <form method="post" action="{% url 'account_email' %}" class="email_list">
+                {% csrf_token %}
+                <div class="ctrlHolder">
+                    <input type="hidden" name="email" value="{{ email }}" />
+                    <button class="btn btn-primary" type="submit" name="action_send">
+                        <i class="fas fa-paper-plane me-2"></i>Send Verification Link
+                    </button>
+                </div>
+            </form>
+
+            <p class="mt-4">
+                <small class="text-muted">
+                    Already verified? <a href="{% url 'accounts:patient_login' %}">Login here</a>
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify Your Email</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #00A4B4;">Welcome to Health Kiosk!</h2>
+        
+        <p>Hello {{ user.username }},</p>
+        
+        <p>Thank you for creating an account with Health Kiosk. To complete your registration, please verify your email address by clicking the button below:</p>
+        
+        <p style="text-align: center; margin: 30px 0;">
+            <a href="{{ verify_url }}" style="background-color: #00A4B4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Verify Email Address
+            </a>
+        </p>
+        
+        <p>Or copy and paste this link into your browser:</p>
+        <p style="background-color: #f5f5f5; padding: 10px; word-break: break-all;">
+            {{ verify_url }}
+        </p>
+        
+        <p>If you did not create this account, you can safely ignore this email.</p>
+        
+        <p>Best regards,<br>The Health Kiosk Team</p>
+    </div>
+</body>
+</html> 

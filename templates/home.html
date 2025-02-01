@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to HealthKiosk{% endblock %}
+
+{% block extra_css %}
+    <style>
+    /* Hero Section */
+    .hero {
+        background: var(--primary-gradient);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: url('/static/images/pattern.svg');
+        opacity: 0.1;
+        animation: patternMove 20s linear infinite;
+    }
+
+    @keyframes patternMove {
+        0% { background-position: 0 0; }
+        100% { background-position: 100% 100%; }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        color: white;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease 0.2s forwards;
+    }
+
+    .hero-image {
+        opacity: 0;
+        transform: translateX(30px);
+        animation: fadeInRight 0.8s ease 0.4s forwards;
+    }
+
+    /* Feature Cards */
+    .features {
+        padding: 6rem 0;
+        background: #f8f9fa;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .feature-card.animate {
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    /* Call to Action */
+    .cta {
+        padding: 6rem 0;
+        background: var(--primary-gradient);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: url('/static/images/pattern.svg');
+        opacity: 0.1;
+        animation: patternMove 20s linear infinite reverse;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-modern {
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .btn-modern.btn-light {
+        background: white;
+        color: var(--primary-color);
+    }
+
+    .btn-modern.btn-light:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .btn-modern.btn-outline-light {
+        border: 2px solid white;
+        background: transparent;
+    }
+
+    .btn-modern.btn-outline-light:hover {
+        background: white;
+        color: var(--primary-color);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Scroll Animation */
+    .scroll-animation {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s ease;
+    }
+
+    .scroll-animation.animate {
+        opacity: 1;
+        transform: translateY(0);
+        }
+
+    .contact-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .section-title {
+        color: #2c3e50;
+        margin-bottom: 40px;
+        font-weight: 600;
+    }
+
+    .contact-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .contact-item i {
+        font-size: 24px;
+        color: #00A4B4;
+        width: 50px;
+        height: 50px;
+        background: rgba(0, 164, 180, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .contact-info h4 {
+        color: #2c3e50;
+        margin-bottom: 5px;
+        font-size: 18px;
+    }
+
+    .contact-info a {
+        color: #00A4B4;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .contact-info a:hover {
+        color: #008391;
+    }
+
+    @media (max-width: 768px) {
+        .contact-card {
+            flex-direction: column;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .contact-item {
+            justify-content: center;
+        }
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title">Your Health, Our Priority</h1>
+                    <p class="hero-subtitle">
+                        Connect with healthcare professionals, manage appointments, and track your health journey - all in one place.
+                    </p>
+                    <div class="d-flex gap-3">
+                        {% if not user.is_authenticated %}
+                            <a href="{% url 'accounts:login' %}" class="btn btn-modern btn-light">
+                                <i class="fas fa-sign-in-alt me-2"></i>Get Started
+                            </a>
+                            <a href="#features" class="btn btn-modern btn-outline-light">
+                                <i class="fas fa-info-circle me-2"></i>Learn More
+                            </a>
+                        {% else %}
+                            {% if user.is_doctor %}
+                                <a href="{% url 'doctors:dashboard' %}" class="btn btn-modern btn-light">
+                                    <i class="fas fa-columns me-2"></i>Go to Dashboard
+                                </a>
+                            {% else %}
+                                <a href="{% url 'patients:dashboard' %}" class="btn btn-modern btn-light">
+                                    <i class="fas fa-columns me-2"></i>Go to Dashboard
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="/static/images/hero-image.svg" alt="Healthcare Illustration" class="img-fluid hero-image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 fw-bold mb-3">Why Choose HealthKiosk?</h2>
+            <p class="lead text-muted">Experience healthcare management like never before</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Easy Scheduling</h3>
+                    <p>Book appointments with healthcare providers quickly and easily.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Health Tracking</h3>
+                    <p>Monitor your vital signs and health metrics over time.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-md"></i>
+                </div>
+                    <h3>Expert Care</h3>
+                    <p>Connect with qualified healthcare professionals.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="display-4 fw-bold mb-4">Ready to Take Control of Your Health?</h2>
+            <p class="lead mb-5">Join thousands of users who trust HealthKiosk for their healthcare needs.</p>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-modern btn-light">
+                    <i class="fas fa-sign-in-alt me-2"></i>Get Started Now
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="contact-section" id="contact">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h2 class="section-title">Contact Us</h2>
+                <div class="contact-card">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div class="contact-info">
+                            <h4>Email</h4>
+                            <a href="mailto:healthkioskgh@gmail.com">healthkioskgh@gmail.com</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div class="contact-info">
+                            <h4>Phone</h4>
+                            <a href="tel:+233546309478">+233 54 630 9478</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate');
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    document.querySelectorAll('.scroll-animation, .feature-card').forEach((el) => observer.observe(el));
+});
+</script>
+{% endblock %} 

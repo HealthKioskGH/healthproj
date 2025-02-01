@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    /* Doctor portal specific variables */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00b09b 0%, #96c93d 100%) !important;
+        --primary-color: #00b09b !important;
+        --secondary-color: #96c93d !important;
+        --primary-light: rgba(0, 176, 155, 0.1) !important;
+        --secondary-light: rgba(150, 201, 61, 0.1) !important;
+    }
+
+    /* Doctor portal navbar */
+    body.doctor-portal nav.navbar {
+        background: var(--primary-gradient) !important;
+        background-image: var(--primary-gradient) !important;
+    }
+
+    body.doctor-portal .navbar-brand,
+    body.doctor-portal .nav-link,
+    body.doctor-portal .navbar .dropdown-toggle {
+        color: white !important;
+    }
+
+    body.doctor-portal .nav-link:hover,
+    body.doctor-portal .nav-link.active {
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Doctor portal common styles */
+    .btn-primary {
+        background: var(--primary-gradient) !important;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #009688 0%, #8bc34a 100%) !important;
+    }
+
+    .btn-outline-primary {
+        color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+    }
+
+    .btn-outline-primary:hover {
+        color: white !important;
+        background: var(--primary-gradient) !important;
+    }
+
+    .text-primary {
+        color: var(--primary-color) !important;
+    }
+
+    .bg-primary {
+        background: var(--primary-gradient) !important;
+    }
+
+    /* Doctor portal layout */
+    .dashboard-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        overflow: hidden;
+        background: white;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% block page_specific_css %}{% endblock %}
+{% endblock %}
+
+{% block body_class %}doctor-portal{% endblock %} 

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Verification Email Sent{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00A4B4 0%, #6DD5ED 100%);
+        --primary-color: #00A4B4;
+        --secondary-color: #6DD5ED;
+    }
+
+    .verification-card {
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .verification-header {
+        background: var(--primary-gradient);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        color: white;
+    }
+
+    .verification-header .icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        backdrop-filter: blur(5px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .verification-body {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 1rem;
+        background: var(--primary-gradient);
+        box-shadow: 0 4px 15px rgba(0, 164, 180, 0.2);
+        transition: all 0.3s ease;
+        color: white;
+        text-decoration: none;
+        margin-top: 1.5rem;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 164, 180, 0.3);
+    }
+
+    .page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 2rem;
+    }
+
+    .steps {
+        margin-top: 2rem;
+        text-align: left;
+    }
+
+    .step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+    }
+
+    .step-number {
+        width: 24px;
+        height: 24px;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="verification-card">
+        <div class="verification-header">
+            <div class="icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h1>Verification Email Sent</h1>
+            <p>Please check your email to complete registration</p>
+        </div>
+
+        <div class="verification-body">
+            <p>We've sent a verification email to your registered email address.</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>
+                        Check your email inbox (and spam folder)
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>
+                        Click the verification link in the email
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>
+                        Your account will be activated automatically
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-4">Didn't receive the email?</p>
+            <a href="{% url 'account_email_verification_sent' %}" class="btn btn-primary">
+                <i class="fas fa-redo me-2"></i>Resend Verification Email
+            </a>
+
+            <p class="mt-4">
+                <a href="{% url 'home' %}" class="text-muted">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

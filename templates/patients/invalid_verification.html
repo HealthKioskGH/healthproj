@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Invalid Verification{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #00A4B4 0%, #6DD5ED 100%);
+        --primary-color: #00A4B4;
+        --secondary-color: #6DD5ED;
+    }
+
+    .verification-card {
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .verification-header {
+        background: var(--primary-gradient);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        color: white;
+    }
+
+    .verification-header .icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        backdrop-filter: blur(5px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .verification-body {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .error-icon {
+        font-size: 3rem;
+        color: #ef4444;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 1rem;
+        background: var(--primary-gradient);
+        box-shadow: 0 4px 15px rgba(0, 164, 180, 0.2);
+        transition: all 0.3s ease;
+        color: white;
+        text-decoration: none;
+        margin: 0.5rem;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 164, 180, 0.3);
+    }
+
+    .page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 2rem;
+    }
+
+    .action-buttons {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="verification-card">
+        <div class="verification-header">
+            <div class="icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1>Invalid Verification</h1>
+        </div>
+
+        <div class="verification-body">
+            <div class="error-icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <h2 class="mb-4">Verification Link Invalid</h2>
+            <p class="mb-4">
+                The verification link you clicked is invalid or has expired. 
+                This could happen if:
+            </p>
+            <ul class="text-left mb-4">
+                <li>The link has already been used</li>
+                <li>The verification link has expired</li>
+                <li>The verification code is incorrect</li>
+            </ul>
+
+            <div class="action-buttons">
+                <a href="{% url 'account_email' %}" class="btn btn-primary">
+                    <i class="fas fa-redo me-2"></i>Request New Verification
+                </a>
+                <a href="{% url 'accounts:patient_login' %}" class="btn btn-primary btn-outline">
+                    <i class="fas fa-sign-in-alt me-2"></i>Back to Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

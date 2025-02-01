@@ -1,0 +1,117 @@
+{% if user.is_patient %}
+<div class="modal fade" id="rescheduleModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-alt me-2"></i>Reschedule Appointment
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" id="rescheduleForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select New Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent">
+                                <i class="fas fa-calendar"></i>
+                            </span>
+                            <input type="text" class="form-control" id="rescheduleDate" name="new_date" placeholder="Select date" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Select New Time</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent">
+                                <i class="fas fa-clock"></i>
+                            </span>
+                            <input type="text" class="form-control" id="rescheduleTime" name="new_time" placeholder="Select time" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reason for Rescheduling</label>
+                        <textarea class="form-control" name="reason" rows="3" required 
+                                placeholder="Please provide a reason for rescheduling"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modern light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-modern">
+                        <i class="fas fa-calendar-check me-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Flatpickr CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Date Picker
+    const datePicker = flatpickr("#rescheduleDate", {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        minDate: "today",
+        onChange: function(selectedDates, dateStr) {
+            document.getElementById('rescheduleDate').value = dateStr;
+        }
+    });
+
+    // Initialize Time Picker with GMT handling
+    const timePicker = flatpickr("#rescheduleTime", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K", // 12-hour format with AM/PM
+        time_24hr: false,
+        minuteIncrement: 15,
+        minTime: "09:00",
+        maxTime: "17:00",
+        defaultHour: 9,
+        onChange: function(selectedDates, timeStr) {
+            // Ensure consistent GMT format
+            const date = selectedDates[0];
+            if (date) {
+                // Convert to GMT
+                const gmtTime = new Date(date.getTime());
+                const formattedTime = gmtTime.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'UTC'
+                }).replace(/\s+/g, ' ').toUpperCase();
+                document.getElementById('rescheduleTime').value = formattedTime;
+            }
+        }
+    });
+
+    // Add GMT indicator to the time input
+    const timeInput = document.getElementById('rescheduleTime');
+    const timeLabel = timeInput.closest('.input-group').querySelector('label');
+    if (timeLabel) {
+        timeLabel.innerHTML += ' <small class="text-muted">(GMT)</small>';
+    }
+
+    // Handle reschedule button click
+    const rescheduleModal = document.getElementById('rescheduleModal');
+    rescheduleModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const appointmentId = button.getAttribute('data-appointment-id');
+        const form = rescheduleModal.querySelector('form');
+        form.action = `/appointments/reschedule/${appointmentId}/`;
+    });
+
+    // Reset form when modal is closed
+    rescheduleModal.addEventListener('hidden.bs.modal', function () {
+        datePicker.clear();
+        timePicker.clear();
+        rescheduleModal.querySelector('form').reset();
+    });
+});
+</script>
+{% endif %} 
