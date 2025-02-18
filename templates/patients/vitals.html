@@ -44,6 +44,26 @@
         padding: 0.5rem 1rem;
         border-radius: 20px;
         font-size: 0.9rem;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    .vital-badge i {
+        font-size: 1rem;
+        vertical-align: middle;
+    }
+    .vital-badge.bg-danger {
+        background-color: rgba(220, 53, 69, 0.1) !important;
+    }
+    .vital-badge.bg-warning {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    .vital-badge.bg-success {
+        background-color: rgba(40, 167, 69, 0.1) !important;
+    }
+    .vital-badge:hover {
+        transform: translateY(-2px);
     }
     .chart-container {
         position: relative;
@@ -160,50 +180,101 @@
 
                         <!-- History Cards -->
                         {% for vital in vitals_history %}
-                            <div class="vital-history-card" style="border-left-color: #4e73df;">
-                                <div class="row align-items-center">
-                                    <div class="col-md-3">
-                                        <div class="text-muted small">Recorded</div>
-                                        <strong>{{ vital.recorded_at|date:"M d, Y H:i" }}</strong>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-2">
-                                                <span class="vital-badge bg-primary bg-opacity-10 text-primary">
-                                                    <i class="fas fa-temperature-high me-1"></i>{{ vital.temperature }}°C
-                                                </span>
-                                            </div>
-                                            <div class="col-md-4 mb-2">
-                                                <span class="vital-badge bg-success bg-opacity-10 text-success">
-                                                    <i class="fas fa-heartbeat me-1"></i>{{ vital.pulse_rate }} bpm
-                                                </span>
-                                            </div>
-                                            <div class="col-md-4 mb-2">
-                                                <span class="vital-badge bg-danger bg-opacity-10 text-danger">
-                                                    <i class="fas fa-tachometer-alt me-1"></i>{{ vital.blood_pressure }}
-                                                </span>
+                            {% with bp_split=vital.blood_pressure|stringformat:"s"|split:"/" %}
+                                {% with systolic=bp_split.0|stringformat:"i"|add:0 %}
+                                    {% with diastolic=bp_split.1|stringformat:"i"|add:0 %}
+                                        <div class="vital-history-card" style="border-left-color: 
+                                            {% with bp_status=vital.blood_pressure|bp_status %}
+                                                {% if bp_status == 'danger' %}#dc3545
+                                                {% elif bp_status == 'warning' %}#ffc107
+                                                {% else %}#28a745{% endif %}
+                                            {% endwith %};">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-3">
+                                                    <div class="text-muted small">Recorded</div>
+                                                    <strong>{{ vital.recorded_at|date:"M d, Y H:i" }}</strong>
+                                                </div>
+                                                <div class="col-md-9">
+                                                    <div class="row">
+                                                        <!-- Temperature Badge -->
+                                                        <div class="col-md-4 mb-2">
+                                                            <span class="vital-badge 
+                                                                {% if vital.temperature >= 38.0 %}
+                                                                    bg-danger bg-opacity-10 text-danger
+                                                                {% elif vital.temperature >= 37.2 %}
+                                                                    bg-warning bg-opacity-10 text-warning
+                                                                {% elif vital.temperature < 36.0 %}
+                                                                    bg-warning bg-opacity-10 text-warning
+                                                                {% else %}
+                                                                    bg-success bg-opacity-10 text-success
+                                                                {% endif %}">
+                                                                <i class="fas fa-temperature-high me-1"></i>{{ vital.temperature }}°C
+                                                                {% if vital.temperature >= 38.0 %}
+                                                                    <i class="fas fa-exclamation-circle ms-1" title="High Fever"></i>
+                                                                {% elif vital.temperature >= 37.2 or vital.temperature < 36.0 %}
+                                                                    <i class="fas fa-exclamation-triangle ms-1" title="Abnormal Temperature"></i>
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+
+                                                        <!-- Pulse Rate Badge -->
+                                                        <div class="col-md-4 mb-2">
+                                                            <span class="vital-badge 
+                                                                {% if vital.pulse_rate >= 100 or vital.pulse_rate <= 60 %}
+                                                                    bg-danger bg-opacity-10 text-danger
+                                                                {% elif vital.pulse_rate >= 90 or vital.pulse_rate <= 65 %}
+                                                                    bg-warning bg-opacity-10 text-warning
+                                                                {% else %}
+                                                                    bg-success bg-opacity-10 text-success
+                                                                {% endif %}">
+                                                                <i class="fas fa-heartbeat me-1"></i>{{ vital.pulse_rate }} bpm
+                                                                {% if vital.pulse_rate >= 100 or vital.pulse_rate <= 60 %}
+                                                                    <i class="fas fa-exclamation-circle ms-1" title="Abnormal Heart Rate"></i>
+                                                                {% elif vital.pulse_rate >= 90 or vital.pulse_rate <= 65 %}
+                                                                    <i class="fas fa-exclamation-triangle ms-1" title="Borderline Heart Rate"></i>
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+
+                                                        <!-- Blood Pressure Badge -->
+                                                        <div class="col-md-4 mb-2">
+                                                            <span class="vital-badge bg-{{ vital.blood_pressure|bp_status }} bg-opacity-10 text-{{ vital.blood_pressure|bp_status }}">
+                                                                <i class="fas fa-tachometer-alt me-1"></i>{{ vital.blood_pressure }}
+                                                                {% with systolic=vital.blood_pressure.split|first|stringformat:"i"|add:0 %}
+                                                                {% with diastolic=vital.blood_pressure.split|last|stringformat:"i"|add:0 %}
+                                                                    {% if systolic >= 140 or diastolic >= 90 %}
+                                                                        <i class="fas fa-exclamation-circle ms-1" title="High Blood Pressure ({{ systolic }}/{{ diastolic }})"></i>
+                                                                    {% elif systolic >= 120 or diastolic >= 80 %}
+                                                                        <i class="fas fa-exclamation-triangle ms-1" title="Elevated Blood Pressure ({{ systolic }}/{{ diastolic }})"></i>
+                                                                    {% endif %}
+                                                                {% endwith %}
+                                                                {% endwith %}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-2">
+                                                        <div class="col-md-4">
+                                                            <span class="vital-badge bg-warning bg-opacity-10 text-warning">
+                                                                <i class="fas fa-weight me-1"></i>{{ vital.weight }} kg
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <span class="vital-badge bg-info bg-opacity-10 text-info">
+                                                                <i class="fas fa-ruler-vertical me-1"></i>{{ vital.height|multiply:100|floatformat:0 }} cm
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <span class="vital-badge {% if vital.bmi < 18.5 %}bg-warning{% elif vital.bmi < 25 %}bg-success{% elif vital.bmi < 30 %}bg-warning{% else %}bg-danger{% endif %} bg-opacity-10 text-{% if vital.bmi < 18.5 %}warning{% elif vital.bmi < 25 %}success{% elif vital.bmi < 30 %}warning{% else %}danger{% endif %}">
+                                                                <i class="fas fa-calculator me-1"></i>BMI: {{ vital.bmi|floatformat:1 }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="row mt-2">
-                                            <div class="col-md-4">
-                                                <span class="vital-badge bg-warning bg-opacity-10 text-warning">
-                                                    <i class="fas fa-weight me-1"></i>{{ vital.weight }} kg
-                                                </span>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <span class="vital-badge bg-info bg-opacity-10 text-info">
-                                                    <i class="fas fa-ruler-vertical me-1"></i>{{ vital.height|multiply:100|floatformat:0 }} cm
-                                                </span>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <span class="vital-badge {% if vital.bmi < 18.5 %}bg-warning{% elif vital.bmi < 25 %}bg-success{% elif vital.bmi < 30 %}bg-warning{% else %}bg-danger{% endif %} bg-opacity-10 text-{% if vital.bmi < 18.5 %}warning{% elif vital.bmi < 25 %}success{% elif vital.bmi < 30 %}warning{% else %}danger{% endif %}">
-                                                    <i class="fas fa-calculator me-1"></i>BMI: {{ vital.bmi|floatformat:1 }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                    {% endwith %}
+                                {% endwith %}
+                            {% endwith %}
                         {% endfor %}
                     {% else %}
                         <div class="text-center py-5">
@@ -262,6 +333,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const systolicValues = bloodPressures.map(bp => parseInt(bp.split('/')[0]));
         const diastolicValues = bloodPressures.map(bp => parseInt(bp.split('/')[1]));
 
+        // Function to get color based on BP values
+        function getBPColor(systolic, diastolic, opacity = 1) {
+            const baseColors = {
+                danger: [220, 53, 69],    // Bootstrap danger
+                warning: [255, 193, 7],   // Bootstrap warning
+                success: [40, 167, 69]    // Bootstrap success
+            };
+
+            let color;
+            // Convert to numbers to ensure proper comparison
+            systolic = parseInt(systolic);
+            diastolic = parseInt(diastolic);
+            
+            if (systolic >= 140 || diastolic >= 90) {
+                color = baseColors.danger;
+            } else if (systolic >= 120 || diastolic >= 80) {
+                color = baseColors.warning;
+            } else {
+                color = baseColors.success;
+            }
+            
+            return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`;
+        }
+
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -270,81 +365,58 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Pulse Rate',
                     data: pulseRates,
                     borderColor: '#4e73df',
-                    backgroundColor: '#4e73df20',
+                    backgroundColor: 'rgba(78, 115, 223, 0.2)',
                     borderWidth: 2,
                     fill: true,
                     yAxisID: 'y'
                 }, {
                     label: 'Systolic BP',
                     data: systolicValues,
-                    borderColor: '#e74a3b',
-                    backgroundColor: '#e74a3b20',
+                    borderColor: function(context) {
+                        const index = context.dataIndex;
+                        return getBPColor(systolicValues[index], diastolicValues[index]);
+                    },
+                    backgroundColor: 'transparent',
                     borderWidth: 2,
-                    fill: true,
+                    fill: false,
                     yAxisID: 'bloodPressure'
                 }, {
                     label: 'Diastolic BP',
                     data: diastolicValues,
-                    borderColor: '#f6c23e',
-                    backgroundColor: '#f6c23e20',
+                    borderColor: function(context) {
+                        const index = context.dataIndex;
+                        return getBPColor(systolicValues[index], diastolicValues[index], 0.7);
+                    },
+                    backgroundColor: 'transparent',
                     borderWidth: 2,
-                    fill: true,
+                    fill: false,
                     yAxisID: 'bloodPressure'
                 }]
             },
             options: {
                 ...commonOptions,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Pulse Rate (bpm)',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
+                plugins: {
+                    ...commonOptions.plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label;
+                                const value = context.parsed.y;
+                                const dataIndex = context.dataIndex;
+                                const systolic = systolicValues[dataIndex];
+                                const diastolic = diastolicValues[dataIndex];
+                                
+                                let status = '';
+                                if (systolic >= 140 || diastolic >= 90) {
+                                    status = ' (High)';
+                                } else if (systolic >= 120 || diastolic >= 80) {
+                                    status = ' (Elevated)';
+                                } else {
+                                    status = ' (Normal)';
+                                }
+                                
+                                return `${label}: ${value}${status}`;
                             }
-                        },
-                        grid: {
-                            drawBorder: false,
-                            color: '#e9ecef'
-                        },
-                        ticks: {
-                            padding: 10
-                        }
-                    },
-                    bloodPressure: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Blood Pressure (mmHg)',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            }
-                        },
-                        grid: {
-                            drawBorder: false,
-                            display: false
-                        },
-                        ticks: {
-                            padding: 10
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            padding: 10
                         }
                     }
                 }

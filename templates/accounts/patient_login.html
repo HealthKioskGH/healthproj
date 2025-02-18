@@ -125,6 +125,31 @@
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         padding: 2rem;
     }
+
+    .input-group .password-toggle {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .input-group .password-toggle:hover {
+        background-color: rgba(0, 164, 180, 0.1);
+        border-color: rgba(0, 164, 180, 0.2);
+    }
+
+    .input-group .password-toggle:focus {
+        box-shadow: none;
+        border-color: rgba(0, 164, 180, 0.3);
+    }
+
+    .input-group .form-control {
+        border-right: none;
+    }
+
+    .input-group .form-control:focus {
+        border-right: none;
+        box-shadow: -0.2rem 0 0.5rem rgba(0, 164, 180, 0.1);
+    }
 </style>
 {% endblock %}
 
@@ -164,11 +189,14 @@
                     <input type="text" class="form-control" name="login" placeholder="Email or Username" required>
                 </div>
 
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-lock"></i>
-                    </span>
-                    <input type="password" class="form-control" name="password" placeholder="Password" required>
+                <div class="form-group position-relative">
+                    <label for="password">{% trans "Password" %}</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="password" class="form-control" required>
+                        <button type="button" class="btn btn-outline-secondary password-toggle" tabindex="-1">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-check mb-3">
@@ -204,4 +232,22 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.querySelector('.password-toggle');
+    const password = document.querySelector('#password');
+    
+    togglePassword.addEventListener('click', function (e) {
+        // Toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Toggle the icon
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+});
+</script>
 {% endblock %} 

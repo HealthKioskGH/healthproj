@@ -21,23 +21,31 @@ var/
 
 # Django
 *.log
-local_settings.py
+*.pot
+*.pyc
 db.sqlite3
-db.sqlite3-journal
 media/
 staticfiles/
 
-# Virtual Environment
-venv/
-ENV/
+# Environment variables
 .env
+.env.local
+.env.*.local
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Virtual Environment
+venv/
+ENV/
+.env
 
 # Coverage/Testing
 htmlcov/
@@ -63,8 +71,10 @@ coverage.xml
 node_modules/
 package-lock.json
 
+# Migration files
+*/migrations/*.py
+!*/migrations/__init__.py
 
 # Django log files
 django.log
 
-#changes

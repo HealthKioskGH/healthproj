@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load patient_tags %}
 
 {% block title %}Doctor Dashboard{% endblock %}
 
@@ -434,19 +435,54 @@
                                             {% with latest_vital=patient.vitalsigns_set.first %}
                                                 {% if latest_vital %}
                                                     <div class="row g-2">
-                                                        <div class="col-auto">
-                                                            <span class="vital-badge primary">
-                                                                <i class="fas fa-heartbeat me-1"></i>{{ latest_vital.pulse_rate }} bpm
-                                                            </span>
-                                                        </div>
-                                                        <div class="col-auto">
-                                                            <span class="vital-badge primary">
+                                                        <div class="col-md-4 mb-2">
+                                                            <span class="vital-badge bg-{{ latest_vital.blood_pressure|bp_status }} bg-opacity-10 text-{{ latest_vital.blood_pressure|bp_status }}">
                                                                 <i class="fas fa-tachometer-alt me-1"></i>{{ latest_vital.blood_pressure }}
+                                                                {% with systolic=latest_vital.blood_pressure.split|first|stringformat:"i"|add:0 %}
+                                                                {% with diastolic=latest_vital.blood_pressure.split|last|stringformat:"i"|add:0 %}
+                                                                    {% if systolic >= 140 or diastolic >= 90 %}
+                                                                        <i class="fas fa-exclamation-circle ms-1" title="High Blood Pressure ({{ systolic }}/{{ diastolic }})"></i>
+                                                                    {% elif systolic >= 120 or diastolic >= 80 %}
+                                                                        <i class="fas fa-exclamation-triangle ms-1" title="Elevated Blood Pressure ({{ systolic }}/{{ diastolic }})"></i>
+                                                                    {% endif %}
+                                                                {% endwith %}
+                                                                {% endwith %}
                                                             </span>
                                                         </div>
-                                                        <div class="col-auto">
-                                                            <span class="vital-badge {% if latest_vital.bmi < 18.5 %}warning{% elif latest_vital.bmi < 25 %}success{% elif latest_vital.bmi < 30 %}warning{% else %}danger{% endif %}">
-                                                                <i class="fas fa-calculator me-1"></i>BMI: {{ latest_vital.bmi|floatformat:1 }}
+                                                        <div class="col-md-4 mb-2">
+                                                            <span class="vital-badge 
+                                                                {% if latest_vital.temperature >= 38.0 %}
+                                                                    bg-danger bg-opacity-10 text-danger
+                                                                {% elif latest_vital.temperature >= 37.2 %}
+                                                                    bg-warning bg-opacity-10 text-warning
+                                                                {% elif latest_vital.temperature < 36.0 %}
+                                                                    bg-warning bg-opacity-10 text-warning
+                                                                {% else %}
+                                                                    bg-success bg-opacity-10 text-success
+                                                                {% endif %}">
+                                                                <i class="fas fa-temperature-high me-1"></i>{{ latest_vital.temperature }}°C
+                                                                {% if latest_vital.temperature >= 38.0 %}
+                                                                    <i class="fas fa-exclamation-circle ms-1" title="High Fever"></i>
+                                                                {% elif latest_vital.temperature >= 37.2 or latest_vital.temperature < 36.0 %}
+                                                                    <i class="fas fa-exclamation-triangle ms-1" title="Abnormal Temperature"></i>
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-md-4 mb-2">
+                                                            <span class="vital-badge 
+                                                                {% if latest_vital.pulse_rate >= 100 or latest_vital.pulse_rate <= 60 %}
+                                                                    bg-danger bg-opacity-10 text-danger
+                                                                {% elif latest_vital.pulse_rate >= 90 or latest_vital.pulse_rate <= 65 %}
+                                                                    bg-warning bg-opacity-10 text-warning
+                                                                {% else %}
+                                                                    bg-success bg-opacity-10 text-success
+                                                                {% endif %}">
+                                                                <i class="fas fa-heartbeat me-1"></i>{{ latest_vital.pulse_rate }} bpm
+                                                                {% if latest_vital.pulse_rate >= 100 or latest_vital.pulse_rate <= 60 %}
+                                                                    <i class="fas fa-exclamation-circle ms-1" title="Abnormal Heart Rate"></i>
+                                                                {% elif latest_vital.pulse_rate >= 90 or latest_vital.pulse_rate <= 65 %}
+                                                                    <i class="fas fa-exclamation-triangle ms-1" title="Borderline Heart Rate"></i>
+                                                                {% endif %}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -712,13 +748,36 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="vital-badge primary">
-                                            <i class="fas fa-tachometer-alt me-2"></i>BP: {{ vitals.blood_pressure }}
+                                        <div class="vital-badge bg-{{ vitals.blood_pressure|bp_status }} bg-opacity-10 text-{{ vitals.blood_pressure|bp_status }}">
+                                            <i class="fas fa-tachometer-alt me-1"></i>{{ vitals.blood_pressure }}
+                                            {% with systolic=vitals.blood_pressure.split|first|stringformat:"i"|add:0 %}
+                                            {% with diastolic=vitals.blood_pressure.split|last|stringformat:"i"|add:0 %}
+                                                {% if systolic >= 140 or diastolic >= 90 %}
+                                                    <i class="fas fa-exclamation-circle ms-1" title="High Blood Pressure ({{ systolic }}/{{ diastolic }})"></i>
+                                                {% elif systolic >= 120 or diastolic >= 80 %}
+                                                    <i class="fas fa-exclamation-triangle ms-1" title="Elevated Blood Pressure ({{ systolic }}/{{ diastolic }})"></i>
+                                                {% endif %}
+                                            {% endwith %}
+                                            {% endwith %}
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="vital-badge {% if vitals.bmi < 18.5 %}warning{% elif vitals.bmi < 25 %}success{% elif vitals.bmi < 30 %}warning{% else %}danger{% endif %}">
-                                            <i class="fas fa-calculator me-2"></i>BMI: {{ vitals.bmi|floatformat:1 }}
+                                        <div class="vital-badge 
+                                            {% if vitals.temperature >= 38.0 %}
+                                                bg-danger bg-opacity-10 text-danger
+                                            {% elif vitals.temperature >= 37.2 %}
+                                                bg-warning bg-opacity-10 text-warning
+                                            {% elif vitals.temperature < 36.0 %}
+                                                bg-warning bg-opacity-10 text-warning
+                                            {% else %}
+                                                bg-success bg-opacity-10 text-success
+                                            {% endif %}">
+                                            <i class="fas fa-temperature-high me-1"></i>{{ vitals.temperature }}°C
+                                            {% if vitals.temperature >= 38.0 %}
+                                                <i class="fas fa-exclamation-circle ms-1" title="High Fever"></i>
+                                            {% elif vitals.temperature >= 37.2 or vitals.temperature < 36.0 %}
+                                                <i class="fas fa-exclamation-triangle ms-1" title="Abnormal Temperature"></i>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
