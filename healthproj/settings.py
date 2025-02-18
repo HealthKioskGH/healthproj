@@ -9,6 +9,9 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Custom User Model - Move this to the top
+AUTH_USER_MODEL = 'accounts.User'
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-your-secret-key'
 
@@ -19,6 +22,7 @@ ALLOWED_HOSTS = ['healthkiosk.herokuapp.com', 'localhost', '127.0.0.1', '*']
 
 # Application definition
 INSTALLED_APPS = [
+    'accounts.apps.AccountsConfig',  # Move accounts to the top
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -26,7 +30,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'accounts.apps.AccountsConfig',
     'patients',
     'doctors',
     'appointments',
@@ -114,9 +117,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'accounts.validators.PasswordStrengthValidator',
     },
 ]
-
-# Custom User Model
-AUTH_USER_MODEL = 'accounts.User'
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
