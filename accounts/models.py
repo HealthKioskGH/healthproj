@@ -15,8 +15,8 @@ class User(AbstractUser):
     address = models.TextField(blank=True)
     
     # Additional fields for doctors
-    specialization = models.CharField(max_length=100, blank=True)
-    license_number = models.CharField(max_length=50, blank=True)
+    specialization = models.CharField(max_length=100, blank=True, null=True, default='')
+    license_number = models.CharField(max_length=50, blank=True, null=True, default='')
     years_of_experience = models.IntegerField(null=True, blank=True)
     qualifications = models.TextField(blank=True)
     hospital_affiliations = models.TextField(blank=True)
