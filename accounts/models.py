@@ -6,9 +6,10 @@ class User(AbstractUser):
     USER_TYPE_CHOICES = (
         ('patient', 'Patient'),
         ('doctor', 'Doctor'),
+        ('admin', 'Admin'),
     )
     
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
     phone_number = models.CharField(max_length=15, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     address = models.TextField(blank=True)
