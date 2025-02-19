@@ -36,7 +36,7 @@ class User(AbstractUser):
     )
     
     class Meta:
-        db_table = 'auth_user'
+        pass
         
     def is_patient(self):
         return self.user_type == 'patient'
