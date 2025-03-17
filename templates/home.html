@@ -12,7 +12,6 @@
         align-items: center;
         position: relative;
         overflow: hidden;
-        padding: 2rem 0;
     }
 
     .hero::before {
@@ -34,52 +33,46 @@
         position: relative;
         z-index: 1;
         color: white;
-        padding: 0 1rem;
     }
 
     .hero-title {
-        font-size: clamp(2rem, 5vw, 3.5rem);
+        font-size: 3.5rem;
         font-weight: 700;
         margin-bottom: 1.5rem;
         opacity: 0;
         transform: translateY(30px);
         animation: fadeInUp 0.8s ease forwards;
-        line-height: 1.2;
     }
 
     .hero-subtitle {
-        font-size: clamp(1rem, 2vw, 1.25rem);
+        font-size: 1.25rem;
         margin-bottom: 2rem;
         opacity: 0;
         transform: translateY(30px);
         animation: fadeInUp 0.8s ease 0.2s forwards;
-        max-width: 600px;
     }
 
     .hero-image {
         opacity: 0;
         transform: translateX(30px);
         animation: fadeInRight 0.8s ease 0.4s forwards;
-        max-width: 100%;
-        height: auto;
     }
 
     /* Feature Cards */
     .features {
-        padding: clamp(3rem, 8vw, 6rem) 0;
+        padding: 6rem 0;
         background: #f8f9fa;
     }
 
     .feature-card {
         background: white;
         border-radius: 20px;
-        padding: clamp(1.5rem, 4vw, 2rem);
+        padding: 2rem;
         margin-bottom: 2rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         transition: all 0.3s ease;
         opacity: 0;
         transform: translateY(30px);
-        height: 100%;
     }
 
     .feature-card.animate {
@@ -92,50 +85,16 @@
     }
 
     .feature-icon {
-        width: clamp(40px, 8vw, 60px);
-        height: clamp(40px, 8vw, 60px);
+        width: 60px;
+        height: 60px;
         border-radius: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: clamp(1.25rem, 3vw, 1.5rem);
+        font-size: 1.5rem;
         margin-bottom: 1.5rem;
         background: var(--primary-gradient);
         color: white;
-    }
-
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .hero {
-            text-align: center;
-        }
-
-        .hero-content {
-            padding: 0 1rem;
-        }
-
-        .hero-image {
-            margin-top: 2rem;
-        }
-
-        .feature-card {
-            margin-bottom: 1.5rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .hero {
-            padding: 4rem 0;
-        }
-
-        .feature-icon {
-            margin: 0 auto 1rem auto;
-        }
-
-        .feature-card {
-            text-align: center;
-            padding: 1.5rem;
-        }
     }
 
     /* Call to Action */
