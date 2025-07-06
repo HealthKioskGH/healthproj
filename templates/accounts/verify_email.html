@@ -93,6 +93,51 @@
         border: 1px solid rgba(255, 187, 51, 0.2);
         color: #ffbb33;
     }
+
+    @media (max-width: 600px) {
+        .verification-card {
+            max-width: 98vw;
+            border-radius: 8px;
+        }
+        .verification-header {
+            padding: 1.2rem 0.7rem;
+            border-radius: 8px 8px 0 0;
+        }
+        .verification-header .logo {
+            width: 56px;
+            height: 56px;
+            font-size: 1.3rem;
+        }
+        .verification-body {
+            padding: 1rem 0.5rem;
+        }
+        h1 {
+            font-size: 1.2rem !important;
+        }
+        p, .btn-primary {
+            font-size: 0.97rem;
+        }
+        .btn-primary {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+        }
+    }
+    @media (max-width: 400px) {
+        .verification-header {
+            padding: 0.7rem 0.2rem;
+        }
+        .verification-body {
+            padding: 0.5rem 0.1rem;
+        }
+        h1 {
+            font-size: 1rem !important;
+        }
+        .btn-primary {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.7rem;
+            border-radius: 5px;
+        }
+    }
 </style>
 {% endblock %}
 
