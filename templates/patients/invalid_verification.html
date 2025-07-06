@@ -95,6 +95,52 @@
         gap: 1rem;
         flex-wrap: wrap;
     }
+
+    @media (max-width: 600px) {
+        .verification-card {
+            max-width: 100%;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .verification-header {
+            padding: 1.5rem 0.7rem;
+        }
+        .verification-header .icon {
+            width: 56px;
+            height: 56px;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .verification-header h1 {
+            font-size: 1.2rem;
+        }
+        .verification-body {
+            padding: 1rem 0.7rem;
+        }
+        .error-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .btn-primary {
+            font-size: 0.97rem;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+        }
+        .page-wrapper {
+            padding: 0.5rem;
+        }
+        .action-buttons {
+            gap: 0.5rem;
+        }
+    }
+    @media (max-width: 400px) {
+        .verification-header h1 {
+            font-size: 1rem;
+        }
+        .verification-body, .error-icon {
+            font-size: 0.85rem;
+        }
+    }
 </style>
 {% endblock %}
 
