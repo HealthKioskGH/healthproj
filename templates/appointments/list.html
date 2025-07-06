@@ -652,6 +652,88 @@
         transform: translateY(-3px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
+
+    @media (max-width: 991.98px) {
+        .page-header {
+            padding: 1.2rem 0;
+            margin-bottom: 1rem;
+        }
+        .card, .appointment-card, .appointment-item {
+            border-radius: 10px;
+        }
+        .filter-group {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.97rem;
+            border-radius: 8px;
+        }
+        h1, h5 {
+            font-size: 1.1rem !important;
+        }
+        .input-group {
+            width: 100% !important;
+            margin-top: 1rem;
+        }
+    }
+    @media (max-width: 767.98px) {
+        .page-header {
+            padding: 0.7rem 0;
+            margin-bottom: 0.5rem;
+        }
+        .card, .appointment-card, .appointment-item {
+            border-radius: 8px;
+        }
+        .filter-group {
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .filter-btn {
+            padding: 0.45rem 0.8rem;
+            font-size: 0.95rem;
+            border-radius: 6px;
+        }
+        h1, h5 {
+            font-size: 0.98rem !important;
+        }
+        .input-group {
+            width: 100% !important;
+            margin-top: 0.7rem;
+        }
+        .appointment-card, .appointment-item {
+            padding: 1rem;
+        }
+    }
+    @media (max-width: 575.98px) {
+        .page-header {
+            padding: 0.4rem 0;
+            margin-bottom: 0.2rem;
+        }
+        .card, .appointment-card, .appointment-item {
+            border-radius: 5px;
+        }
+        .filter-group {
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .filter-btn {
+            padding: 0.35rem 0.7rem;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+        h1, h5 {
+            font-size: 0.92rem !important;
+        }
+        .input-group {
+            width: 100% !important;
+            margin-top: 0.3rem;
+        }
+        .appointment-card, .appointment-item {
+            padding: 0.6rem;
+        }
+    }
 </style>
 {% endblock %}
 
