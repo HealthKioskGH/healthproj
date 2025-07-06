@@ -102,6 +102,64 @@
         margin-right: 1rem;
         flex-shrink: 0;
     }
+
+    @media (max-width: 600px) {
+        .verification-card {
+            max-width: 100%;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .verification-header {
+            padding: 1.5rem 0.7rem;
+        }
+        .verification-header .icon {
+            width: 56px;
+            height: 56px;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .verification-header h1 {
+            font-size: 1.2rem;
+        }
+        .verification-header p {
+            font-size: 0.95rem;
+        }
+        .verification-body {
+            padding: 1rem 0.7rem;
+        }
+        .btn-primary {
+            font-size: 0.97rem;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+        }
+        .page-wrapper {
+            padding: 0.5rem;
+        }
+        .steps {
+            margin-top: 1.2rem;
+        }
+        .step {
+            padding: 0.7rem;
+            font-size: 0.97rem;
+        }
+        .step-number {
+            width: 20px;
+            height: 20px;
+            font-size: 0.95rem;
+            margin-right: 0.7rem;
+        }
+    }
+    @media (max-width: 400px) {
+        .verification-header h1 {
+            font-size: 1rem;
+        }
+        .verification-header p {
+            font-size: 0.85rem;
+        }
+        .verification-body, .step {
+            font-size: 0.85rem;
+        }
+    }
 </style>
 {% endblock %}
 
