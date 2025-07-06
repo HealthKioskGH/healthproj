@@ -42,6 +42,61 @@
         font-weight: 500;
         letter-spacing: 0.3px;
     }
+
+    @media (max-width: 767.98px) {
+        .appointment-card {
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .profile-picture {
+            width: 36px !important;
+            height: 36px !important;
+        }
+        h6 {
+            font-size: 1rem !important;
+        }
+        .status-badge, .severity-badge {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 10px;
+        }
+        .btn, .btn-modern {
+            font-size: 0.95rem;
+            padding: 0.45rem 0.8rem;
+            border-radius: 7px;
+        }
+        .symptom-card {
+            padding: 1rem;
+            border-radius: 8px;
+        }
+    }
+    @media (max-width: 575.98px) {
+        .appointment-card {
+            border-radius: 5px;
+            padding: 0.6rem;
+        }
+        .profile-picture {
+            width: 28px !important;
+            height: 28px !important;
+        }
+        h6 {
+            font-size: 0.92rem !important;
+        }
+        .status-badge, .severity-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 7px;
+        }
+        .btn, .btn-modern {
+            font-size: 0.9rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 5px;
+        }
+        .symptom-card {
+            padding: 0.6rem;
+            border-radius: 5px;
+        }
+    }
 </style>
 
 <div class="appointment-card {{ appointment.status }}">
