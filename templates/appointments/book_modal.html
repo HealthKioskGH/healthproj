@@ -107,3 +107,57 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endif %} 
+
+<style>
+    @media (max-width: 600px) {
+        .modal-dialog {
+            max-width: 98vw !important;
+            margin: 0.5rem auto !important;
+        }
+        .modal-content {
+            border-radius: 8px !important;
+        }
+        .modal-header, .modal-body, .modal-footer {
+            padding-left: 0.7rem !important;
+            padding-right: 0.7rem !important;
+        }
+        .form-control, .input-group-text {
+            font-size: 1.05rem;
+            padding: 0.7rem 0.8rem;
+            border-radius: 8px;
+        }
+        .btn, .btn-modern {
+            font-size: 1.05rem;
+            padding: 0.7rem 1.1rem;
+            border-radius: 8px;
+        }
+        h5 {
+            font-size: 1.15rem !important;
+        }
+        .input-group {
+            flex-direction: column;
+        }
+        .input-group-text {
+            margin-bottom: 0.3rem;
+        }
+    }
+    @media (max-width: 400px) {
+        .modal-header, .modal-body, .modal-footer {
+            padding-left: 0.3rem !important;
+            padding-right: 0.3rem !important;
+        }
+        h5 {
+            font-size: 1rem !important;
+        }
+        .btn, .btn-modern {
+            font-size: 0.95rem;
+            padding: 0.4rem 0.7rem;
+            border-radius: 5px;
+        }
+        .form-control, .input-group-text {
+            font-size: 0.95rem;
+            padding: 0.5rem 0.6rem;
+            border-radius: 5px;
+        }
+    }
+</style> 
