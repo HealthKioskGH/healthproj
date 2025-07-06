@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}Verify Your Email{% endblock %}
+{% block title %}Verification Email Sent{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -28,7 +28,7 @@
         color: white;
     }
 
-    .verification-header .logo {
+    .verification-header .icon {
         width: 80px;
         height: 80px;
         background: rgba(255, 255, 255, 0.2);
@@ -76,16 +76,89 @@
         padding: 2rem;
     }
 
-    .success-checkmark {
-        color: #4ade80;
-        font-size: 3rem;
-        margin-bottom: 1rem;
+    .steps {
+        margin-top: 2rem;
+        text-align: left;
     }
 
-    .error-mark {
-        color: #ef4444;
-        font-size: 3rem;
+    .step {
+        display: flex;
+        align-items: flex-start;
         margin-bottom: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+    }
+
+    .step-number {
+        width: 24px;
+        height: 24px;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 600px) {
+        .verification-card {
+            max-width: 100%;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .verification-header {
+            padding: 1.5rem 0.7rem;
+        }
+        .verification-header .icon {
+            width: 56px;
+            height: 56px;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .verification-header h1 {
+            font-size: 1.2rem;
+        }
+        .verification-header p {
+            font-size: 0.95rem;
+        }
+        .verification-body {
+            padding: 1rem 0.7rem;
+        }
+        .btn-primary {
+            font-size: 0.97rem;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+        }
+        .page-wrapper {
+            padding: 0.5rem;
+        }
+        .steps {
+            margin-top: 1.2rem;
+        }
+        .step {
+            padding: 0.7rem;
+            font-size: 0.97rem;
+        }
+        .step-number {
+            width: 20px;
+            height: 20px;
+            font-size: 0.95rem;
+            margin-right: 0.7rem;
+        }
+    }
+    @media (max-width: 400px) {
+        .verification-header h1 {
+            font-size: 1rem;
+        }
+        .verification-header p {
+            font-size: 0.85rem;
+        }
+        .verification-body, .step {
+            font-size: 0.85rem;
+        }
     }
 </style>
 {% endblock %}
@@ -94,73 +167,48 @@
 <div class="page-wrapper">
     <div class="verification-card">
         <div class="verification-header">
-            <div class="logo">
+            <div class="icon">
                 <i class="fas fa-envelope"></i>
             </div>
-            <h1>Verify Your Email</h1>
-            <p>One last step to complete your registration</p>
+            <h1>Verification Email Sent</h1>
+            <p>Please check your email to complete registration</p>
         </div>
 
         <div class="verification-body">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            <p>We need to verify your email address: <strong>{{ email }}</strong></p>
+            <p>We've sent a verification email to your registered email address.</p>
             
-            <p>Click the button below to receive a verification link:</p>
-
-            <form method="post" action="{% url 'account_email' %}" class="email_list">
-                {% csrf_token %}
-                <div class="ctrlHolder">
-                    <input type="hidden" name="email" value="{{ email }}" />
-                    <button class="btn btn-primary" type="submit" name="action_send">
-                        <i class="fas fa-paper-plane me-2"></i>Send Verification Link
-                    </button>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>
+                        Check your email inbox (and spam folder)
+                    </div>
                 </div>
-            </form>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>
+                        Click the verification link in the email
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>
+                        Your account will be activated automatically
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-4">Didn't receive the email?</p>
+            <a href="{% url 'account_email_verification_sent' %}" class="btn btn-primary">
+                <i class="fas fa-redo me-2"></i>Resend Verification Email
+            </a>
 
             <p class="mt-4">
-                <small class="text-muted">
-                    Already verified? <a href="{% url 'accounts:patient_login' %}">Login here</a>
-                </small>
+                <a href="{% url 'home' %}" class="text-muted">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                </a>
             </p>
         </div>
     </div>
 </div>
-{% endblock %}
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Verify Your Email</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #00A4B4;">Welcome to Health Kiosk!</h2>
-        
-        <p>Hello {{ user.username }},</p>
-        
-        <p>Thank you for creating an account with Health Kiosk. To complete your registration, please verify your email address by clicking the button below:</p>
-        
-        <p style="text-align: center; margin: 30px 0;">
-            <a href="{{ verify_url }}" style="background-color: #00A4B4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                Verify Email Address
-            </a>
-        </p>
-        
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="background-color: #f5f5f5; padding: 10px; word-break: break-all;">
-            {{ verify_url }}
-        </p>
-        
-        <p>If you did not create this account, you can safely ignore this email.</p>
-        
-        <p>Best regards,<br>The Health Kiosk Team</p>
-    </div>
-</body>
-</html> 
+{% endblock %} 
