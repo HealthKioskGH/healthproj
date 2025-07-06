@@ -71,6 +71,59 @@
         width: 100%;
         margin-bottom: 2rem;
     }
+    @media (max-width: 991.98px) {
+        .page-header {
+            padding: 1.2rem 0;
+            margin-bottom: 1rem;
+        }
+        .stat-card, .card, .vital-history-card {
+            border-radius: 10px;
+        }
+        .chart-container {
+            height: 200px !important;
+        }
+        h1, h5 {
+            font-size: 1.1rem !important;
+        }
+    }
+    @media (max-width: 767.98px) {
+        .page-header {
+            padding: 0.7rem 0;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card, .card, .vital-history-card {
+            border-radius: 8px;
+        }
+        .chart-container {
+            height: 140px !important;
+        }
+        .form-control, .form-select {
+            font-size: 0.95rem;
+            padding: 0.6rem 0.7rem;
+        }
+        h1, h5 {
+            font-size: 0.98rem !important;
+        }
+    }
+    @media (max-width: 575.98px) {
+        .page-header {
+            padding: 0.4rem 0;
+            margin-bottom: 0.2rem;
+        }
+        .stat-card, .card, .vital-history-card {
+            border-radius: 5px;
+        }
+        .chart-container {
+            height: 90px !important;
+        }
+        .form-control, .form-select {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.5rem;
+        }
+        h1, h5 {
+            font-size: 0.92rem !important;
+        }
+    }
 </style>
 {% endblock %}
 
