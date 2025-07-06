@@ -296,6 +296,74 @@
         transform: scale(1.1);
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
+
+    @media (max-width: 991.98px) {
+        .dashboard-header {
+            padding: 1.2rem 0;
+            margin-bottom: 1rem;
+        }
+        .stat-card, .appointment-card, .patient-card, .alert-card, .chart-container {
+            border-radius: 10px;
+        }
+        .stat-value {
+            font-size: 1.3rem;
+        }
+        .btn-modern {
+            font-size: 0.97rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+    }
+    @media (max-width: 767.98px) {
+        .dashboard-header {
+            padding: 0.7rem 0;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card, .appointment-card, .patient-card, .alert-card, .chart-container {
+            border-radius: 7px;
+        }
+        .stat-value {
+            font-size: 1.1rem;
+        }
+        .btn-modern {
+            font-size: 0.95rem;
+            padding: 0.4rem 0.7rem;
+            border-radius: 6px;
+        }
+        .patient-profile-pic, .avatar {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 1rem !important;
+        }
+        h1, h5 {
+            font-size: 1.1rem !important;
+        }
+    }
+    @media (max-width: 575.98px) {
+        .dashboard-header {
+            padding: 0.4rem 0;
+            margin-bottom: 0.2rem;
+        }
+        .stat-card, .appointment-card, .patient-card, .alert-card, .chart-container {
+            border-radius: 4px;
+        }
+        .stat-value {
+            font-size: 1rem;
+        }
+        .btn-modern {
+            font-size: 0.9rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+        }
+        .patient-profile-pic, .avatar {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 0.8rem !important;
+        }
+        h1, h5 {
+            font-size: 0.98rem !important;
+        }
+    }
 </style>
 {% endblock %}
 
