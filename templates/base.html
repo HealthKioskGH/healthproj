@@ -39,11 +39,17 @@
             background: var(--primary-gradient) !important;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
             padding: 0.5rem 1rem;
+            position: relative;
         }
 
         .navbar-brand { 
             font-weight: bold; 
             color: white !important;
+        }
+
+        /* Ensure navbar container is properly positioned */
+        .navbar .container-fluid {
+            position: relative;
         }
 
         .nav-link {
@@ -85,23 +91,6 @@
 
             .nav-link.active {
                 background-color: var(--primary-light) !important;
-                color: var(--primary-color) !important;
-            }
-            .navbar-nav .dropdown-menu {
-                background: white;
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                margin-top: 0.5rem;
-            }
-
-            .navbar-nav .dropdown-item {
-                color: var(--primary-color) !important;
-                padding: 0.75rem 1rem;
-                font-weight: 500;
-            }
-
-            .navbar-nav .dropdown-item:hover {
-                background-color: var(--primary-light);
                 color: var(--primary-color) !important;
             }
         }
@@ -249,6 +238,23 @@
             gap: 0.5rem;
         }
 
+        /* Mobile logout button styles */
+        @media (max-width: 991.98px) {
+            .btn-logout {
+                color: var(--primary-color) !important;
+                border: 1px solid var(--primary-color);
+                background: transparent;
+                width: 100%;
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+            
+            .btn-logout:hover {
+                background: var(--primary-light);
+                color: var(--primary-color) !important;
+            }
+        }
+
         .btn-logout:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
@@ -394,6 +400,42 @@
             .navbar-brand img {
                 height: 32px;
             }
+            
+            /* Ensure navbar collapse is properly positioned */
+            .navbar-collapse {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+            }
+            
+            /* Ensure all text in collapsed navbar is visible */
+            .navbar-nav .nav-link,
+            .navbar-nav .dropdown-item {
+                color: var(--primary-color) !important;
+                font-weight: 500;
+                text-shadow: none;
+            }
+            
+            /* Ensure dropdown menus are properly positioned */
+            .dropdown-menu {
+                position: static !important;
+                float: none;
+                width: 100%;
+                margin-top: 0.5rem;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                background: white;
+            }
+            
+            /* Force visibility of all dropdown text */
+            .navbar-nav .dropdown-menu .dropdown-item,
+            .navbar-nav .dropdown-menu a {
+                color: var(--primary-color) !important;
+                font-weight: 500;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
         }
 
         .dropdown-menu {
@@ -402,6 +444,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             padding: 0.5rem;
             min-width: 200px;
+            z-index: 1050;
         }
 
         .dropdown-item {
@@ -409,11 +452,13 @@
             padding: 0.6rem 1rem;
             font-size: 0.9rem;
             transition: all 0.2s ease;
+            color: var(--primary-color) !important;
         }
 
         .dropdown-item:hover {
             background-color: rgba(0, 0, 0, 0.05);
             transform: translateX(3px);
+            color: var(--primary-color) !important;
         }
 
         .dropdown-item.text-danger:hover {
@@ -697,11 +742,9 @@
                             </span>
                         </li>
                         <li class="nav-item">
-                            <div class="dropdown-item">
-                                <a href="{% url 'accounts:logout' %}" class="btn-logout">
-                                    <i class="fas fa-sign-out-alt"></i>Logout
-                                </a>
-                            </div>
+                            <a href="{% url 'accounts:logout' %}" class="nav-link btn-logout">
+                                <i class="fas fa-sign-out-alt"></i>Logout
+                            </a>
                         </li>
                     {% else %}
                         <li class="nav-item dropdown">
