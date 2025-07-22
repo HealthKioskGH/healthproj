@@ -12,6 +12,10 @@ class CustomSignupForm(SignupForm):
     date_of_birth = forms.DateField(required=True, widget=forms.DateInput(attrs={'type': 'date'}))
     address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=True)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].required = False
+
     def save(self, request):
         adapter = get_adapter()
         user = adapter.new_user(request)

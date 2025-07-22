@@ -223,8 +223,7 @@
                            class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
                            name="email" 
                            placeholder="Email Address" 
-                           value="{{ form.email.value|default:'' }}"
-                           required>
+                           value="{{ form.email.value|default:'' }}">
                     {% if form.email.errors %}
                         <div class="invalid-feedback">
                             {% for error in form.email.errors %}

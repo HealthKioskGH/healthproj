@@ -127,34 +127,35 @@ class PatientSignupView(SignupView):
             except Exception as profile_error:
                 print(f"Health profile error: {str(profile_error)}")
             
-            # Create email address record
-            try:
-                email_address, created = EmailAddress.objects.get_or_create(
-                    user=self.user,
-                    email=self.user.email,
-                    defaults={
-                        'primary': True,
-                        'verified': False
-                    }
-                )
-                
-                if not email_address.verified:
-                    # Create email confirmation
-                    confirmation = EmailConfirmation.create(email_address)
-                    confirmation.sent = timezone.now()
-                    confirmation.save()
+            # Create email address record only if email is provided
+            if self.user.email:
+                try:
+                    email_address, created = EmailAddress.objects.get_or_create(
+                        user=self.user,
+                        email=self.user.email,
+                        defaults={
+                            'primary': True,
+                            'verified': False
+                        }
+                    )
                     
-                    # Send the confirmation email
-                    confirmation.send(self.request, signup=True)
-                    print("Verification email sent successfully")
-                
-            except Exception as e:
-                print(f"Email setup error: {str(e)}")
-                messages.warning(
-                    self.request,
-                    'Account created, but there was an issue sending the verification email. '
-                    'You can request a new verification email from your profile.'
-                )
+                    if not email_address.verified:
+                        # Create email confirmation
+                        confirmation = EmailConfirmation.create(email_address)
+                        confirmation.sent = timezone.now()
+                        confirmation.save()
+                        
+                        # Send the confirmation email
+                        confirmation.send(self.request, signup=True)
+                        print("Verification email sent successfully")
+                    
+                except Exception as e:
+                    print(f"Email setup error: {str(e)}")
+                    messages.warning(
+                        self.request,
+                        'Account created, but there was an issue sending the verification email. '
+                        'You can request a new verification email from your profile.'
+                    )
             
             # Log the user in
             auth_user = authenticate(
@@ -165,16 +166,21 @@ class PatientSignupView(SignupView):
             if auth_user:
                 login(self.request, auth_user)
             
-            messages.success(
-                self.request,
-                'Account created successfully! Please check your email to verify your account.'
-            )
-            
-            # Store email in session
-            self.request.session['verification_email'] = self.user.email
-            
-            # Redirect to verify email page
-            return redirect('accounts:verify_email')
+            if self.user.email:
+                messages.success(
+                    self.request,
+                    'Account created successfully! Please check your email to verify your account.'
+                )
+                # Store email in session
+                self.request.session['verification_email'] = self.user.email
+                # Redirect to verify email page
+                return redirect('accounts:verify_email')
+            else:
+                messages.success(
+                    self.request,
+                    'Account created successfully! You can add an email later for verification.'
+                )
+                return redirect('patients:dashboard')
             
         except Exception as e:
             print(f"Registration error: {str(e)}")
